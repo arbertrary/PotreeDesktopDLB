@@ -12,10 +12,10 @@ const url = require('url')
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-function createWindow () {
+function createWindow() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
-		width: 1600, 
+		width: 1600,
 		height: 1200,
 		webPreferences: {
 			nodeIntegration: true,
@@ -23,7 +23,7 @@ function createWindow () {
 			contextIsolation: false,
 			enableRemoteModule: true,
 		}
- 
+
 	})
 
 	// and load the index.html of the app.
@@ -33,6 +33,7 @@ function createWindow () {
 	// 	slashes: true
 	// }));
 	mainWindow.loadFile(path.join(__dirname, 'index.html'));
+	mainWindow.webContents.openDevTools();
 
 
 	//let menu = new Menu();
@@ -50,13 +51,13 @@ function createWindow () {
 		{
 			label: "Window",
 			submenu: [
-				{label: "Reload", click() { mainWindow.webContents.reloadIgnoringCache() }},
-				{label: "Toggle Developer Tools", click() { mainWindow.webContents.toggleDevTools() }},
+				{ label: "Reload", click() { mainWindow.webContents.reloadIgnoringCache() } },
+				{ label: "Toggle Developer Tools", click() { mainWindow.webContents.toggleDevTools() } },
 			]
 		}
 	];
 
-	
+
 
 	let menu = Menu.buildFromTemplate(template);
 	mainWindow.setMenu(menu);
@@ -92,7 +93,7 @@ function createWindow () {
 	// 		console.log(`stdout: ${data}`);
 	// 	});
 	// }
-	
+
 
 
 	// require('remote').getCurrentWindow().toggleDevTools();

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="utf-8">
 	<meta name="description" content="">
@@ -23,7 +24,7 @@
 
 	<span id="pointcloud_file_dropzone" class="droproot">
 		<span style="position:absolute; left: 0px; right: 0px; top: 0px; bottom: 0px" class="dropzone">
-			
+
 			<span class="middle">
 				<p class="dropzone_title">Convert and/or Load point clouds</p>
 
@@ -71,9 +72,8 @@
 			Choose a Converter:
 			<div class="selection_buttons">
 
-				<input type="radio" id="selection_converter_version_1_7" 
-					name="selection_converter_version" value="all">
-					<label for="selection_converter_version_1_7" class="left">
+				<input type="radio" id="selection_converter_version_1_7" name="selection_converter_version" value="all">
+				<label for="selection_converter_version_1_7" class="left">
 					<span class="title">PotreeConverter 1.7</span>
 					<ul>
 						<li>Older version that generates 1 file per octree node.</li>
@@ -81,9 +81,9 @@
 					</ul>
 				</label>
 
-				<input type="radio" id="selection_converter_version_2_0" 
-					name="selection_converter_version" value="false" checked>
-					<label for="selection_converter_version_2_0" class="right" >
+				<input type="radio" id="selection_converter_version_2_0" name="selection_converter_version"
+					value="false" checked>
+				<label for="selection_converter_version_2_0" class="right">
 					<span class="title">PotreeConverter 2.0</span>
 					<ul>
 						<li>Complete rewrite that generates a total of 3 files instead of thousands to millions.</li>
@@ -96,16 +96,16 @@
 		<p>
 			<span style="display: flex">
 				<span style="flex-grow: 1"></span>
-				<input type="button" value="Start Conversion" id="converter_panel_start"/>
+				<input type="button" value="Start Conversion" id="converter_panel_start" />
 				<span style="width:1em"></span>
-				<input type="button" value="Cancel" id="converter_panel_cancel"/>
+				<input type="button" value="Cancel" id="converter_panel_cancel" />
 			</span>
-			
+
 		</p>
 
 	</span>
 
-	<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+	<script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
 
 	<script src="./libs/jquery/jquery-3.1.1.min.js"></script>
 	<script src="./libs/spectrum/spectrum.js"></script>
@@ -119,12 +119,14 @@
 	<script src="./libs/jstree/jstree.js"></script>
 	<script src="./libs/potree/potree.js"></script>
 	<script src="./libs/plasio/js/laslaz.js"></script>
+	<script src="./ws/websocket.js"></script>
 
-		<script>
+
+	<script>
 		let elSplatQuality = $("#converter_choice");
-		elSplatQuality.selectgroup({title: "Converter Choice"});
+		elSplatQuality.selectgroup({ title: "Converter Choice" });
 
-		elSplatQuality.find("input").click( (e) => {
+		elSplatQuality.find("input").click((e) => {
 			console.log(e.target.value);
 			// if(e.target.value === "standard"){
 			// 	this.viewer.useHQ = false;
@@ -133,20 +135,20 @@
 			// }
 		});
 	</script>
-	
+
 	<div class="potree_container" style="position: absolute; width: 100%; height: 100%; left: 0px; top: 0px; ">
 		<div id="potree_render_area"></div>
 		<div id="potree_sidebar_container"> </div>
 	</div>
 
 
-		<script type="module">
+	<script type="module">
 
 		import {
-			loadDroppedPointcloud, 
-			createPlaceholder, 
-			convert_17, 
-			convert_20, 
+			loadDroppedPointcloud,
+			createPlaceholder,
+			convert_17,
+			convert_20,
 			doConversion,
 			dragEnter, dragOver, dragLeave, dropHandler,
 		} from "./src/desktop.js";
@@ -155,7 +157,7 @@
 			// open links in the standard browser instead of electron
 			// see https://github.com/electron/electron/issues/1344
 			const shell = require('electron').shell;
-			$(document).on('click', 'a[href^="http"]', function(event) {
+			$(document).on('click', 'a[href^="http"]', function (event) {
 				event.preventDefault();
 				shell.openExternal(this.href);
 			});
@@ -167,21 +169,21 @@
 		elBody.addEventListener("dragover", dragOver, false);
 		elBody.addEventListener("dragleave", dragLeave, false);
 		elBody.addEventListener("drop", dropHandler, false);
-	
+
 		let elRenderArea = document.getElementById("potree_render_area");
 		let viewerArgs = {
 			noDragAndDrop: true,
 		};
 		window.viewer = new Potree.Viewer(elRenderArea, viewerArgs);
-		
+
 		viewer.setEDLEnabled(true);
 		viewer.setFOV(60);
-		viewer.setPointBudget(3*1000*1000);
+		viewer.setPointBudget(3 * 1000 * 1000);
 		viewer.setMinNodeSize(0);
 		viewer.loadSettingsFromURL();
-		
+
 		viewer.setDescription("");
-		
+
 		viewer.loadGUI(() => {
 			viewer.setLanguage('en');
 			$("#menu_appearance").next().show();
@@ -223,7 +225,7 @@
 
 			// 		cmdArea += `${cmd} `;
 			// 	}
-				
+
 			// 	let suggestedPath = normalize(viewer.scene.pointclouds[0].pcoGeometry.url + "/../../export.las");
 			// 	const dialog = require('electron').remote.dialog;
 			// 	const chosenPath = dialog.showSaveDialogSync(null, {
@@ -268,7 +270,7 @@
 			// 		console.log(`child process exited with code ${code}`);
 			// 	});
 
-				
+
 
 			// });
 
@@ -276,7 +278,7 @@
 
 		// load a file from your disc or USB drive:
 		//Potree.loadPointCloud("C:/dev/workspaces/potree/develop/pointclouds/lion_takanawa/cloud.js", "Point Cloud Name", function(e){
-		
+
 		//Potree.loadPointCloud("http://5.9.65.151/mschuetz/potree/resources/pointclouds/archpro/heidentor/cloud.js", "Point Cloud Name", function(e){
 		//	viewer.scene.addPointCloud(e.pointcloud);
 		//	e.pointcloud.position.z = 0;
@@ -287,8 +289,8 @@
 		//	viewer.scene.view.position.set(13.856734292740617, -9.125174923658731, 14.563928417406354);
 		//	viewer.scene.view.lookAt(-3.5482630104475366, 2.728596783815762, 6.1406044783018725);
 		//});
-		
-		
+
+
 
 		//Potree.loadPointCloud("C:/dev/pointclouds/ot_35120C7102A_1/cloud.js", "CA13", e => {
 		////Potree.loadPointCloud("../pointclouds/C/dev/pointclouds/test/cloud.js", "sigeom.sa", e => {
@@ -307,7 +309,7 @@
 		//	scene.view.lookAt(693747.110, 3916033.332, 33.996);
 		//});
 
-		
+
 		// viewer.onGUILoaded(() => {
 		// 	let message = `
 		// 	Welcome to Potree Desktop.<br>
@@ -330,10 +332,11 @@
 			viewer.postError(e.error.message);
 		});
 
-		
-		
+
+
 	</script>
 
 
-	</body>
+</body>
+
 </html>
