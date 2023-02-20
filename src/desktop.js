@@ -2,7 +2,7 @@
 import * as THREE from "../libs/three.js/build/three.module.js"
 import JSON5 from "../libs/json5-2.1.3/json5.mjs";
 
-export function loadDroppedPointcloud(cloudjsPath){
+export function loadDroppedPointcloud(cloudjsPath) {
 	const folderName = cloudjsPath.replace(/\\/g, "/").split("/").reverse()[1];
 
 	Potree.loadPointCloud(cloudjsPath).then(e => {
@@ -14,9 +14,9 @@ export function loadDroppedPointcloud(cloudjsPath){
 		viewer.scene.addPointCloud(pointcloud);
 
 		let hasRGBA = pointcloud.getAttributes().attributes.find(a => a.name === "rgba") !== undefined
-		if(hasRGBA){
+		if (hasRGBA) {
 			pointcloud.material.activeAttributeName = "rgba";
-		}else{
+		} else {
 			pointcloud.material.activeAttributeName = "color";
 		}
 
@@ -27,14 +27,14 @@ export function loadDroppedPointcloud(cloudjsPath){
 	});
 };
 
-export function createPlaceholder(aabb){
+export function createPlaceholder(aabb) {
 	console.log("create placeholder");
 	console.log(aabb);
 
 	const placeholder = {};
 
 	const node = new THREE.Object3D();
-	
+
 	const min = new THREE.Vector3(...aabb.min);
 	const max = new THREE.Vector3(...aabb.max);
 	const center = new THREE.Vector3(
@@ -74,11 +74,11 @@ export function createPlaceholder(aabb){
 }
 
 
-export function convert_17(inputPaths, chosenPath, pointcloudName){
+export function convert_17(inputPaths, chosenPath, pointcloudName) {
 	let message = `Starting conversion.<br>
 	input: ${inputPaths}<br>
 	output: ${chosenPath}`;
-	viewer.postMessage(message, {duration: 15000});
+	viewer.postMessage(message, { duration: 15000 });
 
 	const { spawn } = require('child_process');
 
@@ -99,39 +99,39 @@ export function convert_17(inputPaths, chosenPath, pointcloudName){
 		console.log("stdout", string);
 		outputBuffer += string;
 
-		if(!placeholder){ 
+		if (!placeholder) {
 			// match for AABB
 			const regexp = /(.*AABB): ({[.\s\S]*?})/g;
 			const matches = outputBuffer.matchAll(regexp);
-				
+
 			for (const match of matches) {
-				try{
+				try {
 					const name = match[1];
 					const value = match[2];
 					const aabb = JSON.parse(match[2]);
 					console.log(aabb);
 
-					if(name === "cubicAABB"){
+					if (name === "cubicAABB") {
 						placeholder = createPlaceholder(aabb);
 
 						outputBuffer = "";
 					}
-				}catch(e){
+				} catch (e) {
 					console.error(match[0]);
 					console.error(e);
 				}
 			}
-		}else{ 
+		} else {
 			// match for progress
 			const regexp = /INDEXING: ([\w\.]*) of ([\w\.]*) processed/g;
 			const matches = outputBuffer.matchAll(regexp);
 
-			for(const match of matches){
+			for (const match of matches) {
 
-				const processed = parseInt(match[1].replace(/\D/g,''));
-				const total = parseInt(match[2].replace(/\D/g,''));
+				const processed = parseInt(match[1].replace(/\D/g, ''));
+				const total = parseInt(match[2].replace(/\D/g, ''));
 				const percent = parseInt(100 * (processed / total));
-				
+
 				const text = `${percent}%`;
 				placeholder.text.setText(text);
 
@@ -152,14 +152,14 @@ export function convert_17(inputPaths, chosenPath, pointcloudName){
 		const cloudJS = `${chosenPath}/cloud.js`;
 		console.log("now loading point cloud: " + cloudJS);
 
-		if(placeholder){
+		if (placeholder) {
 			placeholder.remove();
 		}
 
 		let message = `conversion finished, now loading ${cloudJS}`;
-		viewer.postMessage(message, {duration: 15000});
+		viewer.postMessage(message, { duration: 15000 });
 
-		Potree.loadPointCloud(cloudJS, pointcloudName, function(e){
+		Potree.loadPointCloud(cloudJS, pointcloudName, function (e) {
 			viewer.scene.addPointCloud(e.pointcloud);
 
 			let material = e.pointcloud.material;
@@ -171,11 +171,11 @@ export function convert_17(inputPaths, chosenPath, pointcloudName){
 	});
 }
 
-export function convert_20(inputPaths, chosenPath, pointcloudName){
+export function convert_20(inputPaths, chosenPath, pointcloudName) {
 	let message = `Starting conversion.<br>
 	input: ${inputPaths}<br>
 	output: ${chosenPath}`;
-	viewer.postMessage(message, {duration: 15000});
+	viewer.postMessage(message, { duration: 15000 });
 
 	const { spawn, fork, execFile } = require('child_process');
 
@@ -195,39 +195,39 @@ export function convert_20(inputPaths, chosenPath, pointcloudName){
 		console.log("stdout", string);
 		outputBuffer += string;
 
-		if(!placeholder){ 
+		if (!placeholder) {
 			// match for AABB
 			const regexp = /(.*AABB): ({[.\s\S]*?})/g;
 			const matches = outputBuffer.matchAll(regexp);
-				
+
 			for (const match of matches) {
-				try{
+				try {
 					const name = match[1];
 					const value = match[2];
 					const aabb = JSON.parse(match[2]);
 					console.log(aabb);
 
-					if(name === "cubicAABB"){
+					if (name === "cubicAABB") {
 						placeholder = createPlaceholder(aabb);
 						placeholder.text.setText("0%");
 
 						outputBuffer = "";
 					}
-				}catch(e){
+				} catch (e) {
 					console.error(match[0]);
 					console.error(e);
 				}
 			}
-		}else{ 
+		} else {
 			// match for progress
 
 			let regexp = /\[(\d+)%,/g;
 
 			const matches = outputBuffer.replace(/'/g, "").matchAll(regexp);
 
-			for(const match of matches){
-				const percent = parseInt(match[1].replace(/\D/g,''));
-				
+			for (const match of matches) {
+				const percent = parseInt(match[1].replace(/\D/g, ''));
+
 				const text = `${percent}%`;
 				placeholder.text.setText(text);
 
@@ -249,12 +249,12 @@ export function convert_20(inputPaths, chosenPath, pointcloudName){
 		const cloudJS = `${chosenPath}/metadata.json`;
 		console.log("now loading point cloud: " + cloudJS);
 
-		if(placeholder){
+		if (placeholder) {
 			placeholder.remove();
 		}
 
 		let message = `conversion finished, now loading ${cloudJS}`;
-		viewer.postMessage(message, {duration: 15000});
+		viewer.postMessage(message, { duration: 15000 });
 
 		Potree.loadPointCloud(cloudJS).then(e => {
 			let pointcloud = e.pointcloud;
@@ -263,9 +263,9 @@ export function convert_20(inputPaths, chosenPath, pointcloudName){
 			pointcloud.name = pointcloudName;
 
 			let hasRGBA = pointcloud.getAttributes().attributes.find(a => a.name === "rgba") !== undefined
-			if(hasRGBA){
+			if (hasRGBA) {
 				pointcloud.material.activeAttributeName = "rgba";
-			}else{
+			} else {
 				pointcloud.material.activeAttributeName = "color";
 			}
 
@@ -280,7 +280,7 @@ export function convert_20(inputPaths, chosenPath, pointcloudName){
 	});
 }
 
-export async function doConversion(inputPaths, suggestedDirectory, suggestedName){
+export async function doConversion(inputPaths, suggestedDirectory, suggestedName) {
 
 	const fs = require("fs");
 	const npath = require("path");
@@ -291,9 +291,9 @@ export async function doConversion(inputPaths, suggestedDirectory, suggestedName
 	console.log("suggested directory: ", suggestedDirectory);
 	console.log("suggested name: ", suggestedName);
 
-	let i = 1; 
+	let i = 1;
 	let suggestedPath = `${suggestedDirectory}/${suggestedName}`;
-	while(fs.existsSync(suggestedPath)){
+	while (fs.existsSync(suggestedPath)) {
 		suggestedPath = `${suggestedDirectory}/${suggestedName}_${i}`;
 		i++;
 	}
@@ -315,16 +315,16 @@ export async function doConversion(inputPaths, suggestedDirectory, suggestedName
 	let checkTarget = () => {
 		let targetDir = elTargetDir.value;
 
-		try{
+		try {
 			let stat = fs.lstatSync(targetDir);
 
-			if(stat.isDirectory()){
+			if (stat.isDirectory()) {
 				let msg = `WARNING: the target folder already exists. Contents may be overriden.`;
 				elTargetDirWarning.innerHTML = msg;
-			}else{
+			} else {
 				elTargetDirWarning.innerHTML = "&nbsp;";
 			}
-		}catch(e){
+		} catch (e) {
 			elTargetDirWarning.innerHTML = "&nbsp;";
 		}
 	};
@@ -369,10 +369,10 @@ export async function doConversion(inputPaths, suggestedDirectory, suggestedName
 
 		elPanel.style.display = "none";
 
-		if(el_1_7.checked){
+		if (el_1_7.checked) {
 			console.log("convert 1.7");
 			convert_17(inputPaths, targetDirectory, suggestedName);
-		}else if(el_2_0.checked){
+		} else if (el_2_0.checked) {
 			// console.log("convert 2.0");
 			convert_20(inputPaths, targetDirectory, suggestedName);
 		}
@@ -382,13 +382,13 @@ export async function doConversion(inputPaths, suggestedDirectory, suggestedName
 }
 
 
-export function showDropzones(){
+export function showDropzones() {
 	let element = document.getElementById("pointcloud_file_dropzone");
 
 	element.style.display = "block";
 }
 
-export function hideDropzones(){
+export function hideDropzones() {
 	let element = document.getElementById("pointcloud_file_dropzone");
 
 	element.style.display = "none";
@@ -407,7 +407,7 @@ export function dragEnter(e) {
 	return false;
 }
 
-export function dragOver(e){
+export function dragOver(e) {
 	e.preventDefault();
 	e.stopPropagation();
 
@@ -416,7 +416,7 @@ export function dragOver(e){
 	return false;
 }
 
-export function dragLeave(e){
+export function dragLeave(e) {
 
 	e.preventDefault();
 	e.stopPropagation();
@@ -426,7 +426,7 @@ export function dragLeave(e){
 	return false;
 }
 
-export async function dropHandler(event){
+export async function dropHandler(event) {
 	// console.log(event);
 	event.preventDefault();
 	event.stopPropagation();
@@ -443,10 +443,10 @@ export async function dropHandler(event){
 	let suggestedDirectory = null;
 	let suggestedName = null;
 
-	for(let i = 0; i < event.dataTransfer.items.length; i++){
+	for (let i = 0; i < event.dataTransfer.items.length; i++) {
 		let item = event.dataTransfer.items[i];
 
-		if(item.kind !== "file"){
+		if (item.kind !== "file") {
 			continue;
 		}
 
@@ -462,35 +462,35 @@ export async function dropHandler(event){
 		let isFile = fs.lstatSync(path).isFile();
 		const isJson5 = file.name.toLowerCase().endsWith(".json5");
 
-		if(isJson5){
-			try{
+		if (isJson5) {
+			try {
 
 				const text = await file.text();
 				const json = JSON5.parse(text);
 
-				if(json.type === "Potree"){
+				if (json.type === "Potree") {
 					Potree.loadProject(viewer, json);
 				}
-			}catch(e){
+			} catch (e) {
 				console.error("failed to parse the dropped file as JSON");
 				console.error(e);
 			}
-		}else if(isFile && path.indexOf("cloud.js") >= 0){
+		} else if (isFile && path.indexOf("cloud.js") >= 0) {
 			cloudJsFiles.push(file.path);
-		}else if(isFile && path.indexOf("metadata.json") >= 0){
+		} else if (isFile && path.indexOf("metadata.json") >= 0) {
 			cloudJsFiles.push(file.path);
-		}else if(isFile){
+		} else if (isFile) {
 			const extension = np.extname(path).toLowerCase();
 
-			if(whitelist.includes(extension)){
+			if (whitelist.includes(extension)) {
 				lasLazFiles.push(file.path);
 
-				if(suggestedDirectory == null){
+				if (suggestedDirectory == null) {
 					suggestedDirectory = np.normalize(`${path}/..`);
 					suggestedName = np.basename(path, np.extname(path)) + "_converted";
 				}
 			}
-		}else if(fs.lstatSync(path).isDirectory()){
+		} else if (fs.lstatSync(path).isDirectory()) {
 			// handle directory
 
 			console.log("start readdir!");
@@ -498,20 +498,20 @@ export async function dropHandler(event){
 
 			console.log("readdir done!");
 
-			for(const file of files){
+			for (const file of files) {
 				const extension = np.extname(file).toLowerCase();
 
-				if(whitelist.includes(extension)){
+				if (whitelist.includes(extension)) {
 					lasLazFiles.push(`${path}/${file}`);
 
-					if(suggestedDirectory == null){
+					if (suggestedDirectory == null) {
 						suggestedDirectory = np.normalize(`${path}/..`);
 						suggestedName = np.basename(path, np.extname(path)) + "_converted";
 					}
 
-				}else if(file.toLowerCase().endsWith("cloud.js")){
+				} else if (file.toLowerCase().endsWith("cloud.js")) {
 					cloudJsFiles.push(`${path}/${file}`);
-				}else if(file.toLowerCase().endsWith("metadata.json")){
+				} else if (file.toLowerCase().endsWith("metadata.json")) {
 					cloudJsFiles.push(`${path}/${file}`);
 				}
 
@@ -525,11 +525,11 @@ export async function dropHandler(event){
 	// console.log(cloudJsFiles);
 	// console.log(lasLazFiles);
 
-	if(lasLazFiles.length > 0){
+	if (lasLazFiles.length > 0) {
 		doConversion(lasLazFiles, suggestedDirectory, suggestedName);
 	}
 
-	for(const cloudjs of cloudJsFiles){
+	for (const cloudjs of cloudJsFiles) {
 		loadDroppedPointcloud(cloudjs);
 	}
 
