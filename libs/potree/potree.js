@@ -90589,6 +90589,7 @@ ENDSEC
 	exports.FirstPersonControls = FirstPersonControls;
 	exports.GeoPackageLoader = GeoPackageLoader;
 	exports.Geopackage = Geopackage$1;
+	exports.GeoJSONExporter = GeoJSONExporter;
 	exports.Gradients = Gradients;
 	exports.HierarchicalSlider = HierarchicalSlider;
 	exports.Images360 = Images360;
