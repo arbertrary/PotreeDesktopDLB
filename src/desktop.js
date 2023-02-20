@@ -451,11 +451,16 @@ export async function dropHandler(event) {
 		}
 
 		let file = item.getAsFile();
-		let path = file.path;
+		// let path = file.path;
 
 		const fs = require("fs");
 		const fsp = fs.promises;
 		const np = require('path');
+		let path = np.relative(process.cwd(), file.path)
+		console.log(path);
+
+		// console.log(process.cwd());
+		// console.log(np.relative(process.cwd(), path));
 
 		const whitelist = [".las", ".laz"];
 
@@ -476,17 +481,19 @@ export async function dropHandler(event) {
 				console.error(e);
 			}
 		} else if (isFile && path.indexOf("cloud.js") >= 0) {
-			cloudJsFiles.push(file.path);
+			cloudJsFiles.push(path);
 		} else if (isFile && path.indexOf("metadata.json") >= 0) {
-			cloudJsFiles.push(file.path);
+			cloudJsFiles.push(path);
 		} else if (isFile) {
 			const extension = np.extname(path).toLowerCase();
 
 			if (whitelist.includes(extension)) {
-				lasLazFiles.push(file.path);
+				lasLazFiles.push(path);
 
 				if (suggestedDirectory == null) {
-					suggestedDirectory = np.normalize(`${path}/..`);
+					// suggestedDirectory = np.normalize(`${path}/..`);
+					// suggest a relative directory for conversion so that the point cloud doesn't show up as full path in the config
+					suggestedDirectory = np.normalize(`./pointclouds`)
 					suggestedName = np.basename(path, np.extname(path)) + "_converted";
 				}
 			}
@@ -505,7 +512,8 @@ export async function dropHandler(event) {
 					lasLazFiles.push(`${path}/${file}`);
 
 					if (suggestedDirectory == null) {
-						suggestedDirectory = np.normalize(`${path}/..`);
+						// suggestedDirectory = np.normalize(`${path}/..`);
+						suggestedDirectory = np.normalize(`./pointclouds`)
 						suggestedName = np.basename(path, np.extname(path)) + "_converted";
 					}
 
