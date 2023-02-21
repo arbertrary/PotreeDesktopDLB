@@ -318,7 +318,7 @@
 
 		function sendSceneMessage() {
 			msg = {
-				type: "load",
+				type: "Scene",
 				data: potree_json
 			}
 			ws.send(JSON.stringify(msg));
@@ -328,7 +328,7 @@
 
 		function sendGetSceneMessage() {
 			msg = {
-				type: "save"
+				type: "GetScene"
 			}
 			ws.send(JSON.stringify(msg));
 

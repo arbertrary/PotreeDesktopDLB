@@ -16,7 +16,6 @@
 	"license": "no license available at this time",
 	"dependencies": {
 		"electron": "21.3.1",
-		"express": "^4.18.2",
 		"ws": "^8.12.1"
 	}
 }
