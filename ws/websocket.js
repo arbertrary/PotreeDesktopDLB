@@ -1,64 +1,68 @@
 const WebSocket = require('ws');
-const PoTree = require('./libs/potree/potree')
 
 // Config
 const Config = {
 	socket_port: 3030
 };
 
+/**
+ * Creates the websocket and the endpoints for sending and receiving a Potree project config
+ * 
+ * @param Potree the current Potree instance
+ * @param viewer the current Potree.viewer instance
+ * 
+ **/
+export function createWebSocket(Potree, viewer) {
+	const wss = new WebSocket.Server({ port: Config.socket_port });
+	console.log('[SERVER]: WebSocket on: ws://localhost:' + Config.socket_port); // print websocket ip address
+	console.log(wss.address());
 
-const wss = new WebSocket.Server({ port: Config.socket_port });
-// Console print
-console.log('[SERVER]: WebSocket on: ws://localhost:' + Config.socket_port); // print websocket ip address
-console.log(wss.address());
+	wss.on("connection", (ws) => {
+		ws.on("message", (message) => {
+			console.log("received: %s", message);
+			const msg = JSON.parse(message);
 
+			// The endpoint for receiving and loading a Potree scene config
+			if (msg.type == "Scene") {
+				// Remove measurements before loading
+				viewer.scene.removeAllMeasurements();
 
-wss.on("connection", (ws) => {
-	//connection is up, let's add a simple simple event
-	ws.on("message", (message) => {
-		//log the received message and send it back to the client
-		console.log("received: %s", message);
-		const msg = JSON.parse(message);
-
-		if (msg.type == "Scene") {
-			// Remove measurements before loading
-			viewer.scene.removeAllMeasurements();
-
-			console.log(msg);
-			Potree.loadProject(viewer, msg.data);
-		}
-		else if (msg.type == "GetScene") {
-			let potreeConfig = Potree.saveProject(viewer);
-			console.log(potreeConfig);
-
-			let scene = viewer.scene;
-			let measurements = [...scene.measurements, ...scene.profiles, ...scene.volumes];
-
-			let geoJson = []
-			if (measurements.length > 0) {
-				geoJson = serializeMeasurements(measurements);
+				console.log(msg);
+				Potree.loadProject(viewer, msg.data);
 			}
+			// The endpoint for requesting the current scene config
+			else if (msg.type == "GetScene") {
+				let potreeConfig = Potree.saveProject(viewer);
+				console.log(potreeConfig);
 
-			exportMsg = {
-				type: "Scene",
-				data: {
-					potreeConfig: potreeConfig,
-					geoJSONMeasurements: geoJson
+				let scene = viewer.scene;
+				let measurements = [...scene.measurements, ...scene.profiles, ...scene.volumes];
+
+				let geoJson = []
+				if (measurements.length > 0) {
+					geoJson = serializeMeasurements(measurements);
 				}
-			}
-			try {
-				ws.send(JSON.stringify(exportMsg));
-			}
-			catch {
-				console.warn("ERROR");
-				console.log(measurements);
-			}
-		} else {
-			console.error("Couldn't get message type");
-		}
-	});
-});
 
+				let exportMsg = {
+					type: "Scene",
+					data: {
+						potreeConfig: potreeConfig,
+						geoJSONMeasurements: geoJson
+					}
+				}
+				try {
+					ws.send(JSON.stringify(exportMsg));
+				}
+				catch {
+					console.warn("ERROR");
+					console.log(measurements);
+				}
+			} else {
+				console.error("Couldn't get message type");
+			}
+		});
+	});
+}
 // /**
 //  * see GeoJSONExporter in ../libs/potree/potree.js 
 //  * @author sigeom sa / http://sigeom.ch
@@ -76,7 +80,7 @@ function serializeMeasurements(measurements) {
 
 	let features = [];
 	for (let measure of measurements) {
-		let f = PoTree.GeoJSONExporter.measurementToFeatures(measure);
+		let f = Potree.GeoJSONExporter.measurementToFeatures(measure);
 
 		features = features.concat(f);
 	}

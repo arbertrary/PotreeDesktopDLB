@@ -119,8 +119,6 @@
 	<script src="./libs/jstree/jstree.js"></script>
 	<script src="./libs/potree/potree.js"></script>
 	<script src="./libs/plasio/js/laslaz.js"></script>
-	<script src="./ws/websocket.js"></script>
-
 
 	<script>
 		let elSplatQuality = $("#converter_choice");
@@ -332,6 +330,11 @@
 			viewer.postError(e.error.message);
 		});
 
+		import {
+			createWebSocket
+		} from "./ws/websocket.js";
+
+		createWebSocket(Potree, viewer);
 
 
 	</script>
