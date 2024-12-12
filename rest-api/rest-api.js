@@ -6,6 +6,8 @@ const fs = require("fs");
 
 const html2canvas = require('html2canvas');
 
+const { ipcRenderer } = require("electron")
+
 const apiApp = express();
 const apiPort = 30010;
 
@@ -79,6 +81,8 @@ apiApp.put("/remote/object/call", (req, res) => {
             DLB_ADDRESS: params.address,
             DLB_PORT: params.port
         }
+        console.log('Updated mini_config:', mini_config);
+        sendMiniConfigToMain(mini_config);
         // res.setHeader('Content-Type', 'application/json');
         res.json({ initInfo: { status: "playing", from: "PoTree", path: __dirname } });
     } else if (calledFunc === "loadFromJson") {
@@ -100,6 +104,8 @@ apiApp.put("/remote/object/call", (req, res) => {
             DLB_PORT: "5000",
             CONNECTED: false
         }
+        console.log('Updated mini_config:', mini_config);
+        sendMiniConfigToMain(mini_config);
         console.log("Disconnected from DLB");
 
         // res.setHeader('Content-Type', 'application/json');
@@ -200,6 +206,20 @@ apiApp.listen(apiPort, () => {
     console.log(`API server running at http://localhost:${apiPort}`);
 });
 
+
+// window.addEventListener('unload', () => {
+//     const url = 'http://127.0.0.1:5000/api/unreal/info';
+//     const payload = { disconnect: true };
+
+//     try {
+//         axios.put(url, payload);
+//     } catch (error) {
+//         console.error('Axios request failed, using sendBeacon:', error);
+//         const data = JSON.stringify(payload);
+//         navigator.sendBeacon(url, data);
+//     }
+// });
+
 // /**
 //  * see GeoJSONExporter in ../libs/potree/potree.js 
 //  * @author sigeom sa / http://sigeom.ch
@@ -228,4 +248,9 @@ function serializeMeasurements(measurements) {
     };
 
     return geojson
+}
+
+// Function to send mini_config to the main process
+function sendMiniConfigToMain(config) {
+    ipcRenderer.send('update-mini-config', config);
 }

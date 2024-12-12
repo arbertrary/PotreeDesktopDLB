@@ -5,6 +5,8 @@ const Menu = electron.Menu;
 const MenuItem = electron.MenuItem;
 const remote = electron.remote;
 
+const { ipcMain } = require("electron");
+
 const path = require('path')
 const url = require('url')
 const axios = require("axios")
@@ -12,6 +14,9 @@ const axios = require("axios")
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
+let miniConfig = {}; // Store the mini_config in the main process
+
+
 
 function createWindow() {
 	// Create the browser window.
@@ -105,6 +110,12 @@ function createWindow() {
 
 	// Emitted when the window is closed.
 	mainWindow.on('closed', function () {
+
+		if (miniConfig.CONNECTED) {
+			const response = axios.put("http://" + miniConfig.DLB_ADDRESS + ":" + miniConfig.DLB_PORT + "/api/unreal/info", { disconnect: true }, {
+				headers: { 'Content-Type': 'application/json' },
+			});
+		}
 		// Dereference the window object, usually you would store windows
 		// in an array if your app supports multi windows, this is the time
 		// when you should delete the corresponding element.
@@ -123,9 +134,6 @@ app.on('window-all-closed', function () {
 	// to stay active until the user quits explicitly with Cmd + Q
 	if (process.platform !== 'darwin') {
 		app.quit()
-		const response = axios.put("http://127.0.0.1:5000/api/unreal/info", { disconnect: true }, {
-			headers: { 'Content-Type': 'application/json' },
-		});
 	}
 })
 
@@ -136,6 +144,11 @@ app.on('activate', function () {
 		createWindow()
 	}
 })
+
+ipcMain.on('update-mini-config', (event, config) => {
+	miniConfig = config;
+	console.log('mini_config updated in main process:', miniConfig);
+});
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
