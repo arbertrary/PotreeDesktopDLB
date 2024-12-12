@@ -4,6 +4,8 @@ const axios = require("axios");
 const path = require('path');
 const fs = require("fs");
 
+const html2canvas = require('html2canvas');
+
 const apiApp = express();
 const apiPort = 30010;
 
@@ -104,6 +106,16 @@ apiApp.put("/remote/object/call", (req, res) => {
 
 // Endpoint to handle /commit
 apiApp.get('/commit', async (req, res) => {
+    html2canvas(
+        document.querySelector('#potree_render_area')).then(
+            function (canvas) {
+                var a = document.createElement('a');
+                a.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+                a.download = 'CaptureEcran.png';
+                a.click();
+            });
+
+
     try {
         let screenshot_dir = __dirname + "/dummy_screenshots/"
 

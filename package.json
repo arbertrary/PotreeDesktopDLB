@@ -15,10 +15,12 @@
 	"author": "Markus Schuetz",
 	"license": "no license available at this time",
 	"dependencies": {
+		"@types/html2canvas": "^1.0.0",
 		"axios": "^1.7.9",
 		"body-parser": "^1.20.3",
 		"electron": "21.3.1",
 		"express": "^4.21.2",
+		"html2canvas": "^1.4.1",
 		"ws": "^8.12.1"
 	}
 }
