@@ -136,6 +136,16 @@ document.addEventListener('keydown', (event) => {
                     return;
                 }
             });
+            let potreeConfig = Potree.saveProject(viewer);
+            console.log(potreeConfig);
+
+            let scene = viewer.scene;
+            let measurements = [...scene.measurements, ...scene.profiles, ...scene.volumes];
+
+            let geoJson = []
+            if (measurements.length > 0) {
+                geoJson = serializeMeasurements(measurements);
+            }
 
             html2canvas(
                 document.querySelector('#potree_render_area')).then(
@@ -158,16 +168,7 @@ document.addEventListener('keydown', (event) => {
                                 console.error('Error saving the image:', err);
                             } else {
                                 console.log('Image saved to:', filePath);
-                                let potreeConfig = Potree.saveProject(viewer);
-                                console.log(potreeConfig);
 
-                                let scene = viewer.scene;
-                                let measurements = [...scene.measurements, ...scene.profiles, ...scene.volumes];
-
-                                let geoJson = []
-                                if (measurements.length > 0) {
-                                    geoJson = serializeMeasurements(measurements);
-                                }
 
                                 let dummy_save_game_data = {
                                     timestamp: timestamp,
