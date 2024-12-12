@@ -7,6 +7,7 @@ const remote = electron.remote;
 
 const path = require('path')
 const url = require('url')
+const axios = require("axios")
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -122,6 +123,9 @@ app.on('window-all-closed', function () {
 	// to stay active until the user quits explicitly with Cmd + Q
 	if (process.platform !== 'darwin') {
 		app.quit()
+		const response = axios.put("http://127.0.0.1:5000/api/unreal/info", { disconnect: true }, {
+			headers: { 'Content-Type': 'application/json' },
+		});
 	}
 })
 

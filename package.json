@@ -15,7 +15,10 @@
 	"author": "Markus Schuetz",
 	"license": "no license available at this time",
 	"dependencies": {
+		"axios": "^1.7.9",
+		"body-parser": "^1.20.3",
 		"electron": "21.3.1",
+		"express": "^4.21.2",
 		"ws": "^8.12.1"
 	}
 }
