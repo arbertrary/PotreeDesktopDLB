@@ -108,100 +108,92 @@ apiApp.put("/remote/object/call", (req, res) => {
 
 });
 
-// Endpoint to handle /commit
-apiApp.get('/commit', async (req, res) => {
-    let timestamp = Math.floor(Date.now() / 1000);  // Get the timestamp in seconds
-    let timestampString = timestamp.toString();     // Convert it to a string
+document.addEventListener('keydown', (event) => {
+    // Check if the 'Control' or 'Meta' key (for macOS) is pressed along with 'S'
+    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
 
-    try {
-        let screenshot_dir = path.join(__dirname, "dummy_screenshots")
+        if (!mini_config.CONNECTED) {
+            console.log("NOT CONNECTED");
+            return;
+        }
+        event.preventDefault(); // Prevent the default browser action (like "Save Page")
+        console.log('Ctrl+S or Cmd+S detected!');
 
-        html2canvas(
-            document.querySelector('#potree_render_area')).then(
-                function (canvas) {
-                    var a = document.createElement('a');
-                    var dataURL = canvas.toDataURL("image/png"); //.replace("image/png", "image/octet-stream");
-                    const base64Data = dataURL.replace(/^data:image\/png;base64,/, '');
+        let timestamp = Math.floor(Date.now() / 1000);  // Get the timestamp in seconds
+        let timestampString = timestamp.toString();     // Convert it to a string
 
-                    // Convert the Base64 string to a buffer
-                    const buffer = Buffer.from(base64Data, 'base64');
+        try {
+            let screenshot_dir = path.join(__dirname, "screenshots")
+            fs.mkdir(screenshot_dir, { recursive: true }, (err) => {
+                if (err) {
+                    console.error('Error creating directory:', err);
+                    return;
+                }
+            });
 
-                    // Define the file path where you want to save the image
-                    // const filePath = path.join(__dirname, 'screenshot.png');
-                    var shotFileName = timestampString + "_screenshot.jpg"
-                    const filePath = path.join(screenshot_dir, shotFileName)
+            html2canvas(
+                document.querySelector('#potree_render_area')).then(
+                    function (canvas) {
+                        var a = document.createElement('a');
+                        var dataURL = canvas.toDataURL("image/png"); //.replace("image/png", "image/octet-stream");
+                        const base64Data = dataURL.replace(/^data:image\/png;base64,/, '');
 
-                    // Write the buffer to a file
-                    fs.writeFile(filePath, buffer, (err) => {
-                        if (err) {
-                            console.error('Error saving the image:', err);
-                        } else {
-                            console.log('Image saved to:', filePath);
-                            let potreeConfig = Potree.saveProject(viewer);
-                            console.log(potreeConfig);
+                        // Convert the Base64 string to a buffer
+                        const buffer = Buffer.from(base64Data, 'base64');
 
-                            let scene = viewer.scene;
-                            let measurements = [...scene.measurements, ...scene.profiles, ...scene.volumes];
+                        // Define the file path where you want to save the image
+                        // const filePath = path.join(__dirname, 'screenshot.png');
+                        var shotFileName = timestampString + "_screenshot.jpg"
+                        const filePath = path.join(screenshot_dir, shotFileName)
 
-                            let geoJson = []
-                            if (measurements.length > 0) {
-                                geoJson = serializeMeasurements(measurements);
+                        // Write the buffer to a file
+                        fs.writeFile(filePath, buffer, (err) => {
+                            if (err) {
+                                console.error('Error saving the image:', err);
+                            } else {
+                                console.log('Image saved to:', filePath);
+                                let potreeConfig = Potree.saveProject(viewer);
+                                console.log(potreeConfig);
+
+                                let scene = viewer.scene;
+                                let measurements = [...scene.measurements, ...scene.profiles, ...scene.volumes];
+
+                                let geoJson = []
+                                if (measurements.length > 0) {
+                                    geoJson = serializeMeasurements(measurements);
+                                }
+
+                                let dummy_save_game_data = {
+                                    timestamp: timestamp,
+                                    potreeConfig: potreeConfig,
+                                    geoJSONMeasurements: geoJson
+                                }
+
+                                let commit_data = {
+                                    data: geoJson,
+                                    repoId: mini_config.REPO_ID,
+                                    userName: mini_config.USER_NAME,
+                                    email: mini_config.USER_EMAIL,
+                                    origin: "unreal",
+                                    saveGameData: dummy_save_game_data,
+                                    toolboxMode: "dummy",
+                                    screenshotPrefix: timestampString,
+                                    screenshotDir: screenshot_dir,
+                                    commitMessage: ""
+                                }
+                                // Forward the request body to another API
+                                const response = axios.post('http://' + mini_config.DLB_ADDRESS + ':' + mini_config.DLB_PORT + '/api/git/commit', commit_data, {
+                                    headers: { 'Content-Type': 'application/json' },
+                                });
                             }
-
-                            let dummy_save_game_data = {
-                                timestamp: timestamp,
-                                potreeConfig: potreeConfig,
-                                geoJSONMeasurements: geoJson
-                            }
-
-
-                            // let dummy_save_game_data = {
-                            //     timestamp: timestamp,
-                            //     data: { dataFrom: "Potree" }
-                            // }
-                            let commit_data = {
-                                data: dummy_save_game_data,
-                                repoId: mini_config.REPO_ID,
-                                userName: mini_config.USER_NAME,
-                                email: mini_config.USER_EMAIL,
-                                origin: "unreal",
-                                saveGameData: dummy_save_game_data,
-                                toolboxMode: "dummy",
-                                screenshotPrefix: timestampString,
-                                screenshotDir: screenshot_dir,
-                                commitMessage: "Test"
-                            }
-                            // Forward the request body to another API
-                            const response = axios.post('http://' + mini_config.DLB_ADDRESS + ':' + mini_config.DLB_PORT + '/api/git/commit', commit_data, {
-                                headers: { 'Content-Type': 'application/json' },
-                            });
-                            // Respond to the original client with the response from the forwarded request
-                            // res.status(response.status).json(response.data);
-                            res.json({ action: "Posted Commit" });
-                        }
+                        });
                     });
 
-                });
-        /**
-        try {
-            fs.copyFileSync(screenshot_dir + "dummy_screenshot.jpg", screenshot_dir + "123_screenshot.jpg");
-            console.log('File copied successfully!');
-        } catch (err) {
-            console.error('Error copying file:', err);
+        } catch (error) {
+            console.error('Error forwarding request:', error.message);
         }
-             */
-
-    } catch (error) {
-        console.error('Error forwarding request:', error.message);
-
-        // Handle errors gracefully
-        res.status(error.response?.status || 500).json({
-            error: 'Failed to forward request',
-            details: error.message,
-        });
     }
 });
-
 
 // Start the API server
 apiApp.listen(apiPort, () => {
