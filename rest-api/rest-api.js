@@ -82,8 +82,12 @@ apiApp.put("/remote/object/call", (req, res) => {
         // res.setHeader('Content-Type', 'application/json');
         res.json({ initInfo: { status: "playing", from: "PoTree", path: __dirname } });
     } else if (calledFunc === "loadFromJson") {
-        console.log(req.body.parameters.saveGameData)
+
+        const saveGameData = JSON.parse(req.body.parameters.saveGameData);
+        const config = saveGameData.potreeConfig
+        // console.log(saveGameData.potreeConfig); // Now this should work
         viewer.scene.removeAllMeasurements();
+        Potree.loadProject(viewer, config);
 
         // res.setHeader('Content-Type', 'application/json');
         res.json({ action: "loadFromJson" });
@@ -133,10 +137,28 @@ apiApp.get('/commit', async (req, res) => {
                             console.error('Error saving the image:', err);
                         } else {
                             console.log('Image saved to:', filePath);
+                            let potreeConfig = Potree.saveProject(viewer);
+                            console.log(potreeConfig);
+
+                            let scene = viewer.scene;
+                            let measurements = [...scene.measurements, ...scene.profiles, ...scene.volumes];
+
+                            let geoJson = []
+                            if (measurements.length > 0) {
+                                geoJson = serializeMeasurements(measurements);
+                            }
+
                             let dummy_save_game_data = {
                                 timestamp: timestamp,
-                                data: { dataFrom: "Potree" }
+                                potreeConfig: potreeConfig,
+                                geoJSONMeasurements: geoJson
                             }
+
+
+                            // let dummy_save_game_data = {
+                            //     timestamp: timestamp,
+                            //     data: { dataFrom: "Potree" }
+                            // }
                             let commit_data = {
                                 data: dummy_save_game_data,
                                 repoId: mini_config.REPO_ID,
