@@ -106,49 +106,69 @@ apiApp.put("/remote/object/call", (req, res) => {
 
 // Endpoint to handle /commit
 apiApp.get('/commit', async (req, res) => {
-    html2canvas(
-        document.querySelector('#potree_render_area')).then(
-            function (canvas) {
-                var a = document.createElement('a');
-                a.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-                a.download = 'CaptureEcran.png';
-                a.click();
-            });
-
+    let timestamp = Math.floor(Date.now() / 1000);  // Get the timestamp in seconds
+    let timestampString = timestamp.toString();     // Convert it to a string
 
     try {
-        let screenshot_dir = __dirname + "/dummy_screenshots/"
+        let screenshot_dir = path.join(__dirname, "dummy_screenshots")
 
+        html2canvas(
+            document.querySelector('#potree_render_area')).then(
+                function (canvas) {
+                    var a = document.createElement('a');
+                    var dataURL = canvas.toDataURL("image/png"); //.replace("image/png", "image/octet-stream");
+                    const base64Data = dataURL.replace(/^data:image\/png;base64,/, '');
+
+                    // Convert the Base64 string to a buffer
+                    const buffer = Buffer.from(base64Data, 'base64');
+
+                    // Define the file path where you want to save the image
+                    // const filePath = path.join(__dirname, 'screenshot.png');
+                    var shotFileName = timestampString + "_screenshot.jpg"
+                    const filePath = path.join(screenshot_dir, shotFileName)
+
+                    // Write the buffer to a file
+                    fs.writeFile(filePath, buffer, (err) => {
+                        if (err) {
+                            console.error('Error saving the image:', err);
+                        } else {
+                            console.log('Image saved to:', filePath);
+                            let dummy_save_game_data = {
+                                timestamp: timestamp,
+                                data: { dataFrom: "Potree" }
+                            }
+                            let commit_data = {
+                                data: dummy_save_game_data,
+                                repoId: mini_config.REPO_ID,
+                                userName: mini_config.USER_NAME,
+                                email: mini_config.USER_EMAIL,
+                                origin: "unreal",
+                                saveGameData: dummy_save_game_data,
+                                toolboxMode: "dummy",
+                                screenshotPrefix: timestampString,
+                                screenshotDir: screenshot_dir,
+                                commitMessage: "Test"
+                            }
+                            // Forward the request body to another API
+                            const response = axios.post('http://' + mini_config.DLB_ADDRESS + ':' + mini_config.DLB_PORT + '/api/git/commit', commit_data, {
+                                headers: { 'Content-Type': 'application/json' },
+                            });
+                            // Respond to the original client with the response from the forwarded request
+                            // res.status(response.status).json(response.data);
+                            res.json({ action: "Posted Commit" });
+                        }
+                    });
+
+                });
+        /**
         try {
             fs.copyFileSync(screenshot_dir + "dummy_screenshot.jpg", screenshot_dir + "123_screenshot.jpg");
             console.log('File copied successfully!');
         } catch (err) {
             console.error('Error copying file:', err);
         }
+             */
 
-        let dummy_save_game_data = {
-            timestamp: 123,
-            data: { dataFrom: "Potree" }
-        }
-        let commit_data = {
-            data: dummy_save_game_data,
-            repoId: mini_config.REPO_ID,
-            userName: mini_config.USER_NAME,
-            email: mini_config.USER_EMAIL,
-            origin: "unreal",
-            saveGameData: dummy_save_game_data,
-            toolboxMode: "dummy",
-            screenshotPrefix: "123",
-            screenshotDir: screenshot_dir,
-            commitMessage: "Test"
-        }
-        // Forward the request body to another API
-        const response = await axios.post('http://' + mini_config.DLB_ADDRESS + ':' + mini_config.DLB_PORT + '/api/git/commit', commit_data, {
-            headers: { 'Content-Type': 'application/json' },
-        });
-        console.log(viewer.edlRenderer);
-        // Respond to the original client with the response from the forwarded request
-        res.status(response.status).json(response.data);
     } catch (error) {
         console.error('Error forwarding request:', error.message);
 
