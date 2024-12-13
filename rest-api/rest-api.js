@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const axios = require("axios");
 const path = require('path');
 const fs = require("fs");
+const rdiff = require('recursive-diff');
 
 const html2canvas = require('html2canvas');
 
@@ -19,7 +20,8 @@ let mini_config = {
     DLB_PORT: "5000",
     CONNECTED: false
 }
-{ }
+let currentGeoJson = {}
+
 // Middleware for parsing JSON bodies
 apiApp.use(bodyParser.json());
 
@@ -88,15 +90,21 @@ apiApp.put("/remote/object/call", (req, res) => {
         // res.setHeader('Content-Type', 'application/json');
         res.json({ initInfo: { status: "playing", from: "PoTree", path: __dirname } });
     } else if (calledFunc === "loadFromJson") {
+        if (!mini_config.CONNECTED) {
+            res.json({ action: "not Connected" });
 
-        const saveGameData = JSON.parse(req.body.parameters.saveGameData);
-        const config = saveGameData.potreeConfig
-        // console.log(saveGameData.potreeConfig); // Now this should work
-        viewer.scene.removeAllMeasurements();
-        Potree.loadProject(viewer, config);
+        } else {
 
-        // res.setHeader('Content-Type', 'application/json');
-        res.json({ action: "loadFromJson" });
+            const saveGameData = JSON.parse(req.body.parameters.saveGameData);
+            const config = saveGameData.potreeConfig;
+            currentGeoJson = saveGameData.geoJSONMeasurements;
+            // console.log(saveGameData.potreeConfig); // Now this should work
+            viewer.scene.removeAllMeasurements();
+            Potree.loadProject(viewer, config);
+
+            // res.setHeader('Content-Type', 'application/json');
+            res.json({ action: "loadFromJson" });
+        }
     } else if (calledFunc === "disconnect") {
         mini_config = {
             REPO_ID: "default",
@@ -166,6 +174,7 @@ function sendCommit() {
             geoJson = serializeMeasurements(measurements);
         }
 
+        let geoJsonDiff = rdiff.getDiff(currentGeoJson, geoJson, false);
         html2canvas(
             document.querySelector('#potree_render_area')).then(
                 function (canvas) {
