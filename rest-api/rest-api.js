@@ -19,7 +19,7 @@ let mini_config = {
     DLB_PORT: "5000",
     CONNECTED: false
 }
-
+{ }
 // Middleware for parsing JSON bodies
 apiApp.use(bodyParser.json());
 
@@ -83,6 +83,8 @@ apiApp.put("/remote/object/call", (req, res) => {
         }
         console.log('Updated mini_config:', mini_config);
         sendMiniConfigToMain(mini_config);
+        ipcRenderer.send('update-connected', "Connected to DLB");
+
         // res.setHeader('Content-Type', 'application/json');
         res.json({ initInfo: { status: "playing", from: "PoTree", path: __dirname } });
     } else if (calledFunc === "loadFromJson") {
@@ -107,99 +109,12 @@ apiApp.put("/remote/object/call", (req, res) => {
         console.log('Updated mini_config:', mini_config);
         sendMiniConfigToMain(mini_config);
         console.log("Disconnected from DLB");
+        ipcRenderer.send('update-connected', "Disconnected from DLB");
 
         // res.setHeader('Content-Type', 'application/json');
         res.json({ action: "disconnected" });
     }
 
-});
-
-document.addEventListener('keydown', (event) => {
-    // Check if the 'Control' or 'Meta' key (for macOS) is pressed along with 'S'
-    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
-
-        if (!mini_config.CONNECTED) {
-            console.log("NOT CONNECTED");
-            return;
-        }
-        event.preventDefault(); // Prevent the default browser action (like "Save Page")
-        console.log('Ctrl+S or Cmd+S detected!');
-
-        let timestamp = Math.floor(Date.now() / 1000);  // Get the timestamp in seconds
-        let timestampString = timestamp.toString();     // Convert it to a string
-
-        try {
-            let screenshot_dir = path.join(__dirname, "screenshots")
-            fs.mkdir(screenshot_dir, { recursive: true }, (err) => {
-                if (err) {
-                    console.error('Error creating directory:', err);
-                    return;
-                }
-            });
-            let potreeConfig = Potree.saveProject(viewer);
-            console.log(potreeConfig);
-
-            let scene = viewer.scene;
-            let measurements = [...scene.measurements, ...scene.profiles, ...scene.volumes];
-
-            let geoJson = []
-            if (measurements.length > 0) {
-                geoJson = serializeMeasurements(measurements);
-            }
-
-            html2canvas(
-                document.querySelector('#potree_render_area')).then(
-                    function (canvas) {
-                        var a = document.createElement('a');
-                        var dataURL = canvas.toDataURL("image/png"); //.replace("image/png", "image/octet-stream");
-                        const base64Data = dataURL.replace(/^data:image\/png;base64,/, '');
-
-                        // Convert the Base64 string to a buffer
-                        const buffer = Buffer.from(base64Data, 'base64');
-
-                        // Define the file path where you want to save the image
-                        // const filePath = path.join(__dirname, 'screenshot.png');
-                        var shotFileName = timestampString + "_screenshot.jpg"
-                        const filePath = path.join(screenshot_dir, shotFileName)
-
-                        // Write the buffer to a file
-                        fs.writeFile(filePath, buffer, (err) => {
-                            if (err) {
-                                console.error('Error saving the image:', err);
-                            } else {
-                                console.log('Image saved to:', filePath);
-
-
-                                let dummy_save_game_data = {
-                                    timestamp: timestamp,
-                                    potreeConfig: potreeConfig,
-                                    geoJSONMeasurements: geoJson
-                                }
-
-                                let commit_data = {
-                                    data: geoJson,
-                                    repoId: mini_config.REPO_ID,
-                                    userName: mini_config.USER_NAME,
-                                    email: mini_config.USER_EMAIL,
-                                    origin: "unreal",
-                                    saveGameData: dummy_save_game_data,
-                                    toolboxMode: "dummy",
-                                    screenshotPrefix: timestampString,
-                                    screenshotDir: screenshot_dir,
-                                    commitMessage: ""
-                                }
-                                // Forward the request body to another API
-                                const response = axios.post('http://' + mini_config.DLB_ADDRESS + ':' + mini_config.DLB_PORT + '/api/git/commit', commit_data, {
-                                    headers: { 'Content-Type': 'application/json' },
-                                });
-                            }
-                        });
-                    });
-
-        } catch (error) {
-            console.error('Error forwarding request:', error.message);
-        }
-    }
 });
 
 // Start the API server
@@ -208,18 +123,103 @@ apiApp.listen(apiPort, () => {
 });
 
 
-// window.addEventListener('unload', () => {
-//     const url = 'http://127.0.0.1:5000/api/unreal/info';
-//     const payload = { disconnect: true };
+document.addEventListener('keydown', (event) => {
+    // Check if the 'Control' or 'Meta' key (for macOS) is pressed along with 'S'
+    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+        event.preventDefault(); // Prevent the default browser action (like "Save Page")
+        console.log('Ctrl+S or Cmd+S detected!');
+        sendCommit();
 
-//     try {
-//         axios.put(url, payload);
-//     } catch (error) {
-//         console.error('Axios request failed, using sendBeacon:', error);
-//         const data = JSON.stringify(payload);
-//         navigator.sendBeacon(url, data);
-//     }
-// });
+    }
+});
+
+ipcRenderer.on('ping', function (event, message) {
+    console.log(message);
+    sendCommit();
+});
+
+function sendCommit() {
+    if (!mini_config.CONNECTED) {
+        console.log("NOT CONNECTED");
+        return;
+    }
+
+    let timestamp = Math.floor(Date.now() / 1000);  // Get the timestamp in seconds
+    let timestampString = timestamp.toString();     // Convert it to a string
+
+    try {
+        let screenshot_dir = path.join(__dirname, "screenshots")
+        fs.mkdir(screenshot_dir, { recursive: true }, (err) => {
+            if (err) {
+                console.error('Error creating directory:', err);
+                return;
+            }
+        });
+        let potreeConfig = Potree.saveProject(viewer);
+        console.log(potreeConfig);
+
+        let scene = viewer.scene;
+        let measurements = [...scene.measurements, ...scene.profiles, ...scene.volumes];
+
+        let geoJson = []
+        if (measurements.length > 0) {
+            geoJson = serializeMeasurements(measurements);
+        }
+
+        html2canvas(
+            document.querySelector('#potree_render_area')).then(
+                function (canvas) {
+                    var a = document.createElement('a');
+                    var dataURL = canvas.toDataURL("image/png"); //.replace("image/png", "image/octet-stream");
+                    const base64Data = dataURL.replace(/^data:image\/png;base64,/, '');
+
+                    // Convert the Base64 string to a buffer
+                    const buffer = Buffer.from(base64Data, 'base64');
+
+                    // Define the file path where you want to save the image
+                    // const filePath = path.join(__dirname, 'screenshot.png');
+                    var shotFileName = timestampString + "_screenshot.jpg"
+                    const filePath = path.join(screenshot_dir, shotFileName)
+
+                    // Write the buffer to a file
+                    fs.writeFile(filePath, buffer, (err) => {
+                        if (err) {
+                            console.error('Error saving the image:', err);
+                        } else {
+                            console.log('Image saved to:', filePath);
+
+
+                            let dummy_save_game_data = {
+                                timestamp: timestamp,
+                                potreeConfig: potreeConfig,
+                                geoJSONMeasurements: geoJson
+                            }
+
+                            let commit_data = {
+                                data: geoJson,
+                                repoId: mini_config.REPO_ID,
+                                userName: mini_config.USER_NAME,
+                                email: mini_config.USER_EMAIL,
+                                origin: "unreal",
+                                saveGameData: dummy_save_game_data,
+                                toolboxMode: "dummy",
+                                screenshotPrefix: timestampString,
+                                screenshotDir: screenshot_dir,
+                                commitMessage: ""
+                            }
+                            // Forward the request body to another API
+                            const response = axios.post('http://' + mini_config.DLB_ADDRESS + ':' + mini_config.DLB_PORT + '/api/git/commit', commit_data, {
+                                headers: { 'Content-Type': 'application/json' },
+                            });
+                        }
+                    });
+                });
+
+    } catch (error) {
+        console.error('Error forwarding request:', error.message);
+    }
+}
+
 
 // /**
 //  * see GeoJSONExporter in ../libs/potree/potree.js 

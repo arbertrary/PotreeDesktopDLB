@@ -1,11 +1,10 @@
 const electron = require('electron')
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
+const dialog = electron.dialog
 const Menu = electron.Menu;
 const MenuItem = electron.MenuItem;
 const remote = electron.remote;
-
-const { ipcMain } = require("electron");
 
 const path = require('path')
 const url = require('url')
@@ -14,7 +13,7 @@ const axios = require("axios")
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
-let miniConfig = {}; // Store the mini_config in the main process
+let miniConfig = {}; // Store the miniConfig in the main process
 
 
 
@@ -60,6 +59,24 @@ function createWindow() {
 				{ label: "Reload", click() { mainWindow.webContents.reloadIgnoringCache() } },
 				{ label: "Toggle Developer Tools", click() { mainWindow.webContents.toggleDevTools() } },
 			]
+		},
+		{ label: "Save to DLB", click() { mainWindow.webContents.send('ping', 'sendCommit'); } },
+		{
+			label: "Check DLB Connection", click() {
+				if (miniConfig.CONNECTED) {
+					var cn = "Connected to DLB!"
+				} else {
+					var cn = "Not Connected to DLB!"
+				}
+				dialog.showMessageBox({
+					type: 'info', // Sets the icon to an informational symbol
+					title: 'Connection', // Title of the message box
+					message: cn, // The main message
+					buttons: ['OK'] // Buttons displayed on the dialog
+				}).then(result => {
+					console.log('User clicked:', result.response);
+				});
+			}
 		}
 	];
 
@@ -81,6 +98,23 @@ function createWindow() {
 			console.log(arg) // prints "ping"
 			event.returnValue = 'pong'
 		})
+
+		ipcMain.on('update-mini-config', (event, config) => {
+			miniConfig = config;
+			console.log('miniConfig updated in main process:', miniConfig);
+		});
+
+		ipcMain.on('update-connected', (event, msg) => {
+			dialog.showMessageBox({
+				type: 'info', // Sets the icon to an informational symbol
+				title: 'Connection', // Title of the message box
+				message: msg, // The main message
+				buttons: ['OK'] // Buttons displayed on the dialog
+			}).then(result => {
+				console.log('User clicked:', result.response);
+			});
+
+		});
 	}
 
 	// {
@@ -145,10 +179,7 @@ app.on('activate', function () {
 	}
 })
 
-ipcMain.on('update-mini-config', (event, config) => {
-	miniConfig = config;
-	console.log('mini_config updated in main process:', miniConfig);
-});
+
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
