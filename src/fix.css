@@ -1,0 +1,12 @@
+.annotation-label {
+    pointer-events: none;
+    cursor: default;
+}
+
+.annotation-titlebar {
+    cursor: default;
+}
+
+.annotation-description-content {
+    cursor: default;
+}
