@@ -79983,7 +79983,6 @@ ENDSEC
 				e.oldScene.removeEventListener("volume_added", onVolumeAdded);
 				e.oldScene.removeEventListener("polygon_clip_volume_added", onVolumeAdded);
 				e.oldScene.removeEventListener("measurement_removed", onMeasurementRemoved);
-				e.oldScene.removeEventListener("annotation_removed", onAnnotationRemoved);
 
 
 				e.scene.addEventListener("pointcloud_added", onPointCloudAdded);
@@ -79992,7 +79991,6 @@ ENDSEC
 				e.scene.addEventListener("volume_added", onVolumeAdded);
 				e.scene.addEventListener("polygon_clip_volume_added", onVolumeAdded);
 				e.scene.addEventListener("measurement_removed", onMeasurementRemoved);
-				e.scene.addEventListener("annotation_removed", onAnnotationRemoved);
 
 			});
 
