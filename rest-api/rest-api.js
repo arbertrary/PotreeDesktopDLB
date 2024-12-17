@@ -100,6 +100,16 @@ apiApp.put("/remote/object/call", (req, res) => {
             currentGeoJson = saveGameData.geoJSONMeasurements;
             // console.log(saveGameData.potreeConfig); // Now this should work
             viewer.scene.removeAllMeasurements();
+            viewer.scene.removeAllClipVolumes();
+
+            // viewer.scene.removeAnnotation(viewer.scene.getAnnotations());
+            // viewer.scene.annotations.removeAllChildren();
+
+            // console.log(viewer.scene.annotations);
+            // // annotations.children.forEach(anno => {
+            // //     annotations.remove(anno);
+            // //     anno.dispose();
+            // // });
             Potree.loadProject(viewer, config);
 
             // res.setHeader('Content-Type', 'application/json');
@@ -152,6 +162,11 @@ function sendCommit() {
         return;
     }
 
+    // Remove all potree error messages because they are not removed on pressing X, just set to Display:None
+    // This causes an error with html2canvas
+    const elements = document.querySelectorAll('.potree_message.potree_message_error');
+    elements.forEach(element => element.remove());
+
     let timestamp = Math.floor(Date.now() / 1000);  // Get the timestamp in seconds
     let timestampString = timestamp.toString();     // Convert it to a string
 
@@ -175,10 +190,11 @@ function sendCommit() {
         }
 
         let geoJsonDiff = rdiff.getDiff(currentGeoJson, geoJson, false);
+
         html2canvas(
             document.querySelector('#potree_render_area')).then(
                 function (canvas) {
-                    var a = document.createElement('a');
+                    // var a = document.createElement('a');
                     var dataURL = canvas.toDataURL("image/png"); //.replace("image/png", "image/octet-stream");
                     const base64Data = dataURL.replace(/^data:image\/png;base64,/, '');
 
