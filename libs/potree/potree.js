@@ -56065,21 +56065,18 @@
 		}
 
 		remove (annotation) {
-			console.log("REMOVE ANNOTATION");
-			this.dispatchEvent({
-				'type': 'annotation_removed',
-				'scene': this,
-				'annotation': annotation
-			});
-			
-			console.log(annotation);
-			// if (this.hasChild(annotation)) {
-			annotation.removeAllChildren();
-			annotation.dispose();
-			this.children = this.children.filter(e => e !== annotation);
-			annotation.parent = null;
-			// }
-			console.log(annotation);
+			console.log("REMOVE ANNOTATION");	
+			if (this.hasChild(annotation)) {
+				this.dispatchEvent({
+					'type': 'annotation_removed',
+					'scene': this,
+					'annotation': annotation
+				});
+				annotation.removeAllChildren();
+				annotation.dispose();
+				this.children = this.children.filter(e => e !== annotation);
+				annotation.parent = null;
+			}
 			console.log("AFTER DISPATCHEVENT");
 
 		}
