@@ -56065,12 +56065,23 @@
 		}
 
 		remove (annotation) {
-			if (this.hasChild(annotation)) {
-				annotation.removeAllChildren();
-				annotation.dispose();
-				this.children = this.children.filter(e => e !== annotation);
-				annotation.parent = null;
-			}
+			console.log("REMOVE ANNOTATION");
+			this.dispatchEvent({
+				'type': 'annotation_removed',
+				'scene': this,
+				'annotation': annotation
+			});
+			
+			console.log(annotation);
+			// if (this.hasChild(annotation)) {
+			annotation.removeAllChildren();
+			annotation.dispose();
+			this.children = this.children.filter(e => e !== annotation);
+			annotation.parent = null;
+			// }
+			console.log(annotation);
+			console.log("AFTER DISPATCHEVENT");
+
 		}
 
 		removeAllChildren() {
@@ -79876,6 +79887,13 @@ ENDSEC
 			this.viewer.scene.addEventListener("polygon_clip_volume_added", onVolumeAdded);
 			this.viewer.scene.annotations.addEventListener("annotation_added", onAnnotationAdded);
 
+			let onAnnotationRemoved = (e) => {
+				console.log("ONANNOTATIONREMOVED");
+				let annotationsRoot = $("#jstree_scene").jstree().get_json("annotations");
+				let jsonNode = annotationsRoot.children.find(child => child.data.uuid === e.annotation.uuid);
+	
+				tree.jstree("delete_node", jsonNode.id);
+			}
 			let onMeasurementRemoved = (e) => {
 				let measurementsRoot = $("#jstree_scene").jstree().get_json("measurements");
 				let jsonNode = measurementsRoot.children.find(child => child.data.uuid === e.measurement.uuid);
@@ -79908,6 +79926,8 @@ ENDSEC
 			this.viewer.scene.addEventListener("volume_removed", onVolumeRemoved);
 			this.viewer.scene.addEventListener("polygon_clip_volume_removed", onPolygonClipVolumeRemoved);
 			this.viewer.scene.addEventListener("profile_removed", onProfileRemoved);
+			this.viewer.scene.annotations.addEventListener("annotation_removed", onAnnotationRemoved);
+
 
 			{
 				let annotationIcon = `${Potree.resourcePath}/icons/annotation.svg`;
@@ -79966,6 +79986,8 @@ ENDSEC
 				e.oldScene.removeEventListener("volume_added", onVolumeAdded);
 				e.oldScene.removeEventListener("polygon_clip_volume_added", onVolumeAdded);
 				e.oldScene.removeEventListener("measurement_removed", onMeasurementRemoved);
+				e.oldScene.removeEventListener("annotation_removed", onAnnotationRemoved);
+
 
 				e.scene.addEventListener("pointcloud_added", onPointCloudAdded);
 				e.scene.addEventListener("measurement_added", onMeasurementAdded);
@@ -79973,6 +79995,8 @@ ENDSEC
 				e.scene.addEventListener("volume_added", onVolumeAdded);
 				e.scene.addEventListener("polygon_clip_volume_added", onVolumeAdded);
 				e.scene.addEventListener("measurement_removed", onMeasurementRemoved);
+				e.scene.addEventListener("annotation_removed", onAnnotationRemoved);
+
 			});
 
 		}

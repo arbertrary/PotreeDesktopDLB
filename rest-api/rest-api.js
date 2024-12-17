@@ -102,14 +102,8 @@ apiApp.put("/remote/object/call", (req, res) => {
             viewer.scene.removeAllMeasurements();
             viewer.scene.removeAllClipVolumes();
 
-            // viewer.scene.removeAnnotation(viewer.scene.getAnnotations());
-            // viewer.scene.annotations.removeAllChildren();
+            viewer.scene.annotations.removeAllChildren();
 
-            // console.log(viewer.scene.annotations);
-            // // annotations.children.forEach(anno => {
-            // //     annotations.remove(anno);
-            // //     anno.dispose();
-            // // });
             Potree.loadProject(viewer, config);
 
             // res.setHeader('Content-Type', 'application/json');
