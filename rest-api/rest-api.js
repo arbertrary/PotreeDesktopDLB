@@ -85,7 +85,6 @@ apiApp.put("/remote/object/call", (req, res) => {
         }
         console.log('Updated mini_config:', mini_config);
         sendMiniConfigToMain(mini_config);
-        ipcRenderer.send('update-connected', "Connected to DLB");
 
         // res.setHeader('Content-Type', 'application/json');
         res.json({ initInfo: { status: "playing", from: "PoTree", path: __dirname } });
@@ -97,17 +96,25 @@ apiApp.put("/remote/object/call", (req, res) => {
 
             const saveGameData = JSON.parse(req.body.parameters.saveGameData);
             const config = saveGameData.potreeConfig;
-            currentGeoJson = saveGameData.geoJSONMeasurements;
-            // console.log(saveGameData.potreeConfig); // Now this should work
-            viewer.scene.removeAllMeasurements();
-            viewer.scene.removeAllClipVolumes();
+            if (config) {
+                currentGeoJson = saveGameData.geoJSONMeasurements;
+                // console.log(saveGameData.potreeConfig); // Now this should work
+                viewer.scene.removeAllMeasurements();
+                viewer.scene.removeAllClipVolumes();
 
-            viewer.scene.annotations.removeAllChildren();
+                viewer.scene.annotations.removeAllChildren();
 
-            Potree.loadProject(viewer, config);
+                Potree.loadProject(viewer, config);
 
-            // res.setHeader('Content-Type', 'application/json');
-            res.json({ action: "loadFromJson" });
+                // res.setHeader('Content-Type', 'application/json');
+                ipcRenderer.send('update-connected', "Connected to DLB");
+
+                res.json({ action: "loadFromJson in Potree" });
+            } else {
+                ipcRenderer.send('update-connected', "Couldn't connect to DLB. Not a PoTree config");
+
+                res.json({ action: "Not a Potree config. Didn't load", failed: true })
+            }
         }
     } else if (calledFunc === "disconnect") {
         mini_config = {
