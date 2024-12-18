@@ -14,8 +14,7 @@ const axios = require("axios")
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 let miniConfig = {}; // Store the miniConfig in the main process
-
-
+let firstConnect = false;
 
 function createWindow() {
 	// Create the browser window.
@@ -105,6 +104,24 @@ function createWindow() {
 		});
 
 		ipcMain.on('update-connected', (event, msg) => {
+			if (!firstConnect) {
+				dialog.showMessageBox({
+					type: 'info', // Sets the icon to an informational symbol
+					title: 'Connection', // Title of the message box
+					message: msg, // The main message
+					buttons: ['OK'] // Buttons displayed on the dialog
+				}).then(result => {
+					console.log('User clicked:', result.response);
+
+				});
+				firstConnect = true;
+
+			} else {
+				return;
+			}
+		});
+
+		ipcMain.on("update-disconnected", (event, msg) => {
 			dialog.showMessageBox({
 				type: 'info', // Sets the icon to an informational symbol
 				title: 'Connection', // Title of the message box
@@ -112,12 +129,10 @@ function createWindow() {
 				buttons: ['OK'] // Buttons displayed on the dialog
 			}).then(result => {
 				console.log('User clicked:', result.response);
+				firstConnect = false;
+				mainWindow.webContents.reloadIgnoringCache();
 			});
 		});
-
-		ipcMain.on("reload-message", (event, msg) => {
-			mainWindow.webContents.reloadIgnoringCache()
-		})
 	}
 
 	// {

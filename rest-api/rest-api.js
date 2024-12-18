@@ -128,9 +128,7 @@ apiApp.put("/remote/object/call", (req, res) => {
         console.log('Updated mini_config:', mini_config);
         sendMiniConfigToMain(mini_config);
         console.log("Disconnected from DLB");
-        ipcRenderer.send('update-connected', "Disconnected from DLB");
-        ipcRenderer.send("reload-message", "Reload after disconnect");
-
+        ipcRenderer.send('update-disconnected', "Disconnected from DLB");
         // res.setHeader('Content-Type', 'application/json');
         res.json({ action: "disconnected" });
     }
@@ -166,7 +164,7 @@ function sendCommit() {
 
     // Remove all potree error messages because they are not removed on pressing X, just set to Display:None
     // This causes an error with html2canvas
-    const elements = document.querySelectorAll('.potree_message.potree_message_error');
+    const elements = document.querySelectorAll('.potree_message');
     elements.forEach(element => element.remove());
 
     let timestamp = Math.floor(Date.now() / 1000);  // Get the timestamp in seconds
