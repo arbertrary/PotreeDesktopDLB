@@ -113,8 +113,11 @@ function createWindow() {
 			}).then(result => {
 				console.log('User clicked:', result.response);
 			});
-
 		});
+
+		ipcMain.on("reload-message", (event, msg) => {
+			mainWindow.webContents.reloadIgnoringCache()
+		})
 	}
 
 	// {

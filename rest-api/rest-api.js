@@ -129,6 +129,7 @@ apiApp.put("/remote/object/call", (req, res) => {
         sendMiniConfigToMain(mini_config);
         console.log("Disconnected from DLB");
         ipcRenderer.send('update-connected', "Disconnected from DLB");
+        ipcRenderer.send("reload-message", "Reload after disconnect");
 
         // res.setHeader('Content-Type', 'application/json');
         res.json({ action: "disconnected" });
