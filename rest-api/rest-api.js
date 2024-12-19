@@ -87,7 +87,7 @@ apiApp.put("/remote/object/call", (req, res) => {
         sendMiniConfigToMain(mini_config);
 
         // res.setHeader('Content-Type', 'application/json');
-        res.json({ initInfo: { status: "playing", from: "PoTree", path: __dirname } });
+        res.json({ initInfo: { status: "playing", from: "Potree", path: __dirname } });
     } else if (calledFunc === "loadFromJson") {
         if (!mini_config.CONNECTED) {
             res.json({ action: "not Connected" });
@@ -111,26 +111,30 @@ apiApp.put("/remote/object/call", (req, res) => {
 
                 res.json({ action: "loadFromJson in Potree" });
             } else {
-                ipcRenderer.send('update-connected', "Couldn't connect to DLB. Not a PoTree config");
+                ipcRenderer.send('update-connected', "Couldn't connect to DLB. Not a Potree config");
 
                 res.json({ action: "Not a Potree config. Didn't load", failed: true })
             }
         }
     } else if (calledFunc === "disconnect") {
-        mini_config = {
-            REPO_ID: "default",
-            USER_NAME: "default",
-            USER_EMAIL: "default@default.com",
-            DLB_ADDRESS: "localhost",
-            DLB_PORT: "5000",
-            CONNECTED: false
+        if (mini_config.CONNECTED) {
+            mini_config = {
+                REPO_ID: "default",
+                USER_NAME: "default",
+                USER_EMAIL: "default@default.com",
+                DLB_ADDRESS: "localhost",
+                DLB_PORT: "5000",
+                CONNECTED: false
+            }
+            console.log('Updated mini_config:', mini_config);
+            sendMiniConfigToMain(mini_config);
+            console.log("Disconnected from DLB");
+            ipcRenderer.send('update-disconnected', "Disconnected from DLB");
+            // res.setHeader('Content-Type', 'application/json');
+            res.json({ action: "disconnected" });
+        } else {
+            res.json({ action: "Didn't disconnect since Potree wasn't connected" });
         }
-        console.log('Updated mini_config:', mini_config);
-        sendMiniConfigToMain(mini_config);
-        console.log("Disconnected from DLB");
-        ipcRenderer.send('update-disconnected', "Disconnected from DLB");
-        // res.setHeader('Content-Type', 'application/json');
-        res.json({ action: "disconnected" });
     }
 
 });
@@ -258,7 +262,7 @@ function serializeMeasurements(measurements) {
         measurements = [measurements];
     }
 
-    // measurements = measurements.filter(m => m instanceof PoTree.Measure);
+    // measurements = measurements.filter(m => m instanceof Potree.Measure);
     measurements = measurements.filter(m => m.constructor.name === "Measure");
 
     let features = [];
