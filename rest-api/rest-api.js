@@ -20,6 +20,9 @@ let mini_config = {
     DLB_PORT: "5000",
     CONNECTED: false
 }
+
+let hasInitialConnectHappened = false;
+
 let currentGeoJson = {}
 
 // Middleware for parsing JSON bodies
@@ -107,11 +110,17 @@ apiApp.put("/remote/object/call", (req, res) => {
                 Potree.loadProject(viewer, config);
 
                 // res.setHeader('Content-Type', 'application/json');
-                ipcRenderer.send('update-connected', "Connected to DLB");
+
+                if (!hasInitialConnectHappened) {
+                    viewer.postMessage("Connected to DLB and loaded save state!");
+                    hasInitialConnectHappened = true;
+                } else {
+                    viewer.postMessage("Loaded save state!");
+                }
 
                 res.json({ action: "loadFromJson in Potree" });
             } else {
-                ipcRenderer.send('update-connected', "Couldn't connect to DLB. Not a Potree config");
+                viewer.postError("Couldn't connect to DLB. Not a Potree config!");
 
                 res.json({ action: "Not a Potree config. Didn't load", failed: true })
             }
@@ -128,8 +137,13 @@ apiApp.put("/remote/object/call", (req, res) => {
             }
             console.log('Updated mini_config:', mini_config);
             sendMiniConfigToMain(mini_config);
-            console.log("Disconnected from DLB");
-            ipcRenderer.send('update-disconnected', "Disconnected from DLB");
+
+            if (hasInitialConnectHappened) {
+                console.log("Disconnected from DLB");
+                viewer.postMessage("Disconnected from DLB!");
+            }
+            hasInitialConnectHappened = false;
+
             // res.setHeader('Content-Type', 'application/json');
             res.json({ action: "disconnected" });
         } else {
@@ -160,8 +174,13 @@ ipcRenderer.on('ping', function (event, message) {
     sendCommit();
 });
 
+ipcRenderer.on("message", function (event, message) {
+    viewer.postMessage(message);
+})
+
 function sendCommit() {
     if (!mini_config.CONNECTED) {
+        viewer.postMessage("Couldn't save to DLB. Not connected!")
         console.log("NOT CONNECTED");
         return;
     }
@@ -243,6 +262,7 @@ function sendCommit() {
                         }
                     });
                 });
+        viewer.postMessage("Saved to DLB!");
 
     } catch (error) {
         console.error('Error forwarding request:', error.message);

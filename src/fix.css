@@ -10,3 +10,14 @@
 .annotation-description-content {
     cursor: default;
 }
+
+.potree_message {
+    padding: 20px;
+    margin: 15px;
+    font-weight: bold;
+    background-color: #00589C;
+}
+
+.potree_message_error {
+    background-color: darkred;
+}
