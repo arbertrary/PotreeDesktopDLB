@@ -165,66 +165,6 @@ ipcRenderer.on("message", function (event, message) {
     viewer.postMessage(message);
 })
 
-ipcRenderer.on("loadPC", function (event, message) {
-    if (message === "mothra") {
-
-        // relative path but not ../pointclouds 
-        // because rest-api.js is loaded from index.html 
-        // and relative to that, pointclouds/ directory is on the same level
-        Potree.loadPointCloud("./pointclouds/mothra_converted/metadata.json", "Mothra", function (e) {
-            let scene = viewer.scene;
-            let pointcloud = e.pointcloud;
-
-            if (!scene.pointclouds.some(pointcloud => pointcloud.name === "Mothra")) {
-
-                scene.addPointCloud(pointcloud);
-            } viewer.zoomTo(pointcloud);
-        });
-
-        viewer.postMessage("Loaded Mothra Point Cloud");
-
-    } else if (message === "centralgroup") {
-
-        Potree.loadPointCloud("./pointclouds/CentralGroup_testalignment_converted/metadata.json", "Niua South Central Group", function (e) {
-            let scene = viewer.scene;
-            let pointcloud = e.pointcloud;
-
-            if (!scene.pointclouds.some(pointcloud => pointcloud.name === "Niua South Central Group")) {
-
-                scene.addPointCloud(pointcloud);
-            }
-            viewer.zoomTo(pointcloud);
-        });
-
-
-        viewer.postMessage("Loaded Niua South Central Group Point Cloud");
-
-    }
-    else if (message === "dechen") {
-
-        Potree.loadPointCloud("http://5.9.65.151/mschuetz/potree/resources/pointclouds/uni_heidelberg/dechen_cave/cloud.js", "Dechen Cave", function (e) {
-            let scene = viewer.scene;
-            let pointcloud = e.pointcloud;
-
-            let material = pointcloud.material;
-            material.size = 1;
-            material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
-            material.shape = Potree.PointShape.SQUARE;
-            material.activeAttributeName = "elevation";
-            if (!scene.pointclouds.some(pointcloud => pointcloud.name === "Dechen Cave")) {
-
-                scene.addPointCloud(pointcloud);
-            }
-
-            viewer.zoomTo(pointcloud);
-
-        });
-
-
-        viewer.postMessage("Loaded Dechen Cave Point Cloud");
-
-    }
-})
 
 function sendCommit() {
     if (!mini_config.CONNECTED) {

@@ -61,13 +61,62 @@ function createWindow() {
 			label: "Point Clouds",
 			submenu: [
 				{
-					label: "Mothra", click() { mainWindow.webContents.send("loadPC", "mothra") }
+					label: "Mothra", click() {
+						mainWindow.webContents.send("loadPC",
+							{
+								key: "mothra",
+								name: "Mothra",
+								path: "./pointclouds/mothra_converted/metadata.json",
+								msg: "Loaded Mothra Point Cloud"
+							}
+						)
+					}
 				},
 				{
-					label: "Niua South", click() { mainWindow.webContents.send("loadPC", "centralgroup") }
+					label: "Niua South", click() {
+						mainWindow.webContents.send("loadPC",
+							{
+								key: "niuasouth",
+								name: "Niua South Central Group",
+								path: "./pointclouds/CentralGroup_testalignment_converted/metadata.json",
+								msg: "Loaded Niua South Central Group Point Cloud"
+
+							}
+						)
+					}
 				},
 				{
-					label: "Dechen Cave", click() { mainWindow.webContents.send("loadPC", "dechen") }
+					label: "Dechen Cave", click() {
+						mainWindow.webContents.send("loadPC", {
+							key: "dechen",
+							name: "Dechen Cave",
+							path: "http://5.9.65.151/mschuetz/potree/resources/pointclouds/uni_heidelberg/dechen_cave/cloud.js",
+							msg: "Loaded Dechen Cave Point Cloud"
+						}
+						)
+					}
+				},
+				{
+					label: "Mars", click() {
+						mainWindow.webContents.send("loadPC", {
+							key: "mars",
+							name: "RealityCapture Mars Imagery Demo",
+							path: "./pointclouds/RC_Mars_tut_converted/metadata.json",
+							msg: "Loaded RealityCapture Mars Demo\n(https://www.capturingreality.com/sample-datasets)"
+						}
+						)
+					}
+				},
+				{
+					label: "Drone Imagery", click() {
+						mainWindow.webContents.send("loadPC", {
+							key: "drone",
+							name: "RealityCapture Drone Imagery Demo",
+							path: "./pointclouds/RC_DroneImagery_tut_converted/metadata.json",
+							msg: "Loaded RealityCapture Drone Imagery Demo\n(https://www.capturingreality.com/sample-datasets)"
+						}
+						)
+					}
 				}
 			]
 		},
