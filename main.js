@@ -57,16 +57,35 @@ function createWindow() {
 				{ label: "Toggle Developer Tools", click() { mainWindow.webContents.toggleDevTools() } },
 			]
 		},
-		{ label: "Save to DLB", click() { mainWindow.webContents.send('ping', 'sendCommit'); } },
 		{
-			label: "Check DLB Connection", click() {
-				if (miniConfig.CONNECTED) {
-					var cn = "Connected to DLB!"
-				} else {
-					var cn = "Not Connected to DLB!"
+			label: "Point Clouds",
+			submenu: [
+				{
+					label: "Mothra", click() { mainWindow.webContents.send("loadPC", "mothra") }
+				},
+				{
+					label: "Niua South", click() { mainWindow.webContents.send("loadPC", "centralgroup") }
+				},
+				{
+					label: "Dechen Cave", click() { mainWindow.webContents.send("loadPC", "dechen") }
 				}
-				mainWindow.webContents.send("message", cn);
-			}
+			]
+		},
+		{
+			label: "Digital Lab Book",
+			submenu: [
+				{ label: "Save to DLB", click() { mainWindow.webContents.send('ping', 'sendCommit'); } },
+				{
+					label: "Check DLB Connection", click() {
+						if (miniConfig.CONNECTED) {
+							var cn = "Connected to DLB!"
+						} else {
+							var cn = "Not Connected to DLB!"
+						}
+						mainWindow.webContents.send("message", cn);
+					}
+				}
+			]
 		}
 	];
 
