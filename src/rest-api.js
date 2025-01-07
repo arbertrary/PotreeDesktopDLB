@@ -213,6 +213,8 @@ function sendCommit() {
         }
 
         let geoJsonDiff = rdiff.getDiff(currentGeoJson, geoJson, false);
+        geoJsonDiff = geoJsonDiff.filter(item => item.op !== "update");
+
 
         html2canvas(
             document.querySelector('#potree_render_area')).then(
