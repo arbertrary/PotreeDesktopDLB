@@ -1,27 +1,53 @@
 {
 	"name": "potree_desktop",
-	"version": "1.7.0",
-	"description": "A WebGL Point Cloud Viewer",
+	"version": "2.0.0-dlb",
+	"description": "A WebGL Point Cloud Viewer adapted to communicate with the Digital Lab Book",
 	"main": "main.js",
 	"scripts": {
-		"start": "electron ."
+		"start": "electron .",
+		"build": "electron-builder"
 	},
-	"repository": "https://github.com/potree/potree",
+	"build": {
+		"appId": "io.github.arbertrary.potreedesktopdlb",
+		"productName": "PotreeDesktopDLB",
+		"artifactName": "potree-desktop-dlb-installer.${ext}",
+		"files": [
+			"main.js",
+			"index.html",
+			"libs/**/*",
+			"node_modules/**/*",
+			"src/*",
+			"pointclouds/**/*"
+		],
+		"directories": {
+			"output": "dist"
+		},
+		"win": {
+			"target": "nsis"
+		},
+		"nsis": {
+			"oneClick": false
+		}
+	},
+	"repository": "https://github.com/arbertrary/PotreeDesktopDLB",
 	"keywords": [
 		"Potree",
 		"point cloud viewer",
 		"lidar viewer"
 	],
-	"author": "Markus Schuetz",
+	"author": "Armin Bernstetter",
 	"license": "no license available at this time",
 	"dependencies": {
 		"@types/html2canvas": "^1.0.0",
 		"axios": "^1.7.9",
 		"body-parser": "^1.20.3",
-		"electron": "21.3.1",
 		"express": "^4.21.2",
 		"html2canvas": "^1.4.1",
 		"recursive-diff": "^1.0.9",
 		"ws": "^8.12.1"
+	},
+	"devDependencies": {
+		"electron": "21.3.1",
+		"electron-builder": "^25.1.8"
 	}
 }

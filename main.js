@@ -35,7 +35,7 @@ function createWindow() {
 	// 	slashes: true
 	// }));
 	mainWindow.loadFile(path.join(__dirname, 'index.html'));
-	mainWindow.webContents.openDevTools();
+	// mainWindow.webContents.openDevTools();
 
 
 	//let menu = new Menu();
