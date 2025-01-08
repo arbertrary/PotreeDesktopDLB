@@ -88489,7 +88489,9 @@ ENDSEC
 			return this.showBoundingBox;
 		};
 
-		setMoveSpeed (value) {
+		setMoveSpeed (inValue) {
+			let value = Math.max(1, inValue);
+
 			if (this.moveSpeed !== value) {
 				this.moveSpeed = value;
 				this.dispatchEvent({'type': 'move_speed_changed', 'viewer': this, 'speed': value});
