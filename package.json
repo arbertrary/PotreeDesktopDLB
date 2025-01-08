@@ -17,7 +17,9 @@
 			"libs/**/*",
 			"node_modules/**/*",
 			"src/*",
-			"pointclouds/**/*"
+			"pointclouds/**/*",
+			"!pointclouds/*.las",
+			"!pointclouds/*.laz"
 		],
 		"icon": "niua_icon.ico",
 		"directories": {
