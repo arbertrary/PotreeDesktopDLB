@@ -91,7 +91,10 @@ function createWindow() {
 							key: "dechen",
 							name: "Dechen Cave",
 							path: "http://5.9.65.151/mschuetz/potree/resources/pointclouds/uni_heidelberg/dechen_cave/cloud.js",
-							msg: "Loaded Dechen Cave Point Cloud"
+							msg: "Loaded Dechen Cave Point Cloud",
+							material: {
+								activeAttributeName: "elevation"
+							}
 						}
 						)
 					}

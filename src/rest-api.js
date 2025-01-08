@@ -1,3 +1,7 @@
+/**
+ * @author Armin Bernstetter / https://arbertrary.dev
+ * 
+ */
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require("axios");
@@ -265,7 +269,7 @@ function sendCommit() {
 //  * @author sigeom sa / http://sigeom.ch
 //  * @author Ioda-Net Sàrl / https://www.ioda-net.ch/
 //  * @author Markus Schütz / http://potree.org
-//  * @author Armin Bernstetter
+//  * @author Armin Bernstetter / https://arbertrary.dev
 //  */
 function serializeMeasurements(measurements) {
     if (!(measurements instanceof Array)) {
