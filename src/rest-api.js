@@ -29,6 +29,11 @@ let hasInitialConnectHappened = false;
 
 let currentGeoJson = {}
 
+// In case this has been packaged via npm run build
+// from package.json
+// Apparently the __dirname lists app.asar as the directory
+let currentDir = __dirname.replace("app.asar", "");
+
 // Middleware for parsing JSON bodies
 apiApp.use(bodyParser.json());
 
@@ -81,7 +86,8 @@ apiApp.put("/remote/object/call", (req, res) => {
         sendMiniConfigToMain(mini_config);
 
         // res.setHeader('Content-Type', 'application/json');
-        res.json({ initInfo: { status: "playing", from: "Potree", path: __dirname } });
+
+        res.json({ initInfo: { status: "playing", from: "Potree", path: currentDir } });
     } else if (calledFunc === "loadFromJson") {
         if (!mini_config.CONNECTED) {
             res.json({ action: "not Connected" });
@@ -186,7 +192,7 @@ function sendCommit() {
     let timestampString = timestamp.toString();     // Convert it to a string
 
     try {
-        let screenshot_dir = path.join(__dirname, "screenshots")
+        let screenshot_dir = path.join(currentDir, "screenshots")
         fs.mkdir(screenshot_dir, { recursive: true }, (err) => {
             if (err) {
                 console.error('Error creating directory:', err);
