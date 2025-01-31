@@ -56032,6 +56032,11 @@
 		}
 
 		add (annotation) {
+			/* call sendCommit() from rest-api.js to commit  
+			* the current state of the Potree Scene
+			* This is slightly dangerous and it is necessary that  rest-api.js is loaded previously
+			*/			
+			sendCommit();
 			if (!this.children.includes(annotation)) {
 				this.children.push(annotation);
 				annotation.parent = this;
@@ -67877,6 +67882,11 @@ void main() {
 			};
 			
 			cancel.callback = e => {
+				/* call sendCommit() from rest-api.js to commit  
+				* the current state of the Potree Scene
+				* This is slightly dangerous and it is necessary that  rest-api.js is loaded previously
+				*/				
+				sendCommit();
 
 				//let first = svg.find("polyline")[0].points[0];
 				//svg.find("polyline").each((index, target) => {
@@ -68494,6 +68504,11 @@ void main() {
 			};
 
 			cancel.callback = e => {
+				/* call sendCommit() from rest-api.js to commit  
+				* the current state of the Potree Scene
+				* This is slightly dangerous and it is necessary that  rest-api.js is loaded previously
+				*/				
+				sendCommit();
 				if (cancel.removeLastMarker) {
 					measure.removeMarker(measure.points.length - 1);
 				}
@@ -68887,6 +68902,11 @@ void main() {
 			};
 
 			cancel.callback = e => {
+				/* call sendCommit() from rest-api.js to commit  
+				* the current state of the Potree Scene
+				* This is slightly dangerous and it is necessary that  rest-api.js is loaded previously
+				*/
+				sendCommit();
 				profile.removeMarker(profile.points.length - 1);
 				domElement.removeEventListener('mouseup', insertionCallback, false);
 				this.viewer.removeEventListener('cancel_insertions', cancel.callback);
@@ -70153,6 +70173,11 @@ void main() {
 			};
 
 			cancel.callback = e => {
+				/* call sendCommit() from rest-api.js to commit  
+				* the current state of the Potree Scene
+				* This is slightly dangerous and it is necessary that  rest-api.js is loaded previously
+				*/				
+				sendCommit();
 				volume.removeEventListener('drag', drag);
 				volume.removeEventListener('drop', drop);
 				this.viewer.removeEventListener('cancel_insertions', cancel.callback);
@@ -88489,7 +88514,9 @@ ENDSEC
 			return this.showBoundingBox;
 		};
 
-		setMoveSpeed (value) {
+		setMoveSpeed (inValue) {
+			let value = Math.max(1, inValue);
+
 			if (this.moveSpeed !== value) {
 				this.moveSpeed = value;
 				this.dispatchEvent({'type': 'move_speed_changed', 'viewer': this, 'speed': value});
