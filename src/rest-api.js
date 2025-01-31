@@ -213,6 +213,7 @@ function sendCommit() {
                 function (canvas) {
                     // var a = document.createElement('a');
                     var dataURL = canvas.toDataURL("image/png"); //.replace("image/png", "image/octet-stream");
+                    // console.log(dataURL); Could take this dataURL and use it raw e.g. in <img src="data:image/png;base64,....."
                     const base64Data = dataURL.replace(/^data:image\/png;base64,/, '');
 
                     // Convert the Base64 string to a buffer
