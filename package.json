@@ -10,23 +10,23 @@
 	"build": {
 		"appId": "io.github.arbertrary.potreedesktopdlb",
 		"productName": "PotreeDesktopDLB",
-		"artifactName": "potree-desktop-dlb-installer.${ext}",
+		"artifactName": "potree-desktop-dlb-portable.${ext}",
 		"files": [
 			"main.js",
 			"index.html",
 			"libs/**/*",
 			"node_modules/**/*",
 			"src/*",
-			"pointclouds/**/*",
+			"pointclouds/mothra_converted/**/*",
 			"!pointclouds/*.las",
 			"!pointclouds/*.laz"
 		],
 		"icon": "niua_icon.ico",
 		"directories": {
-			"output": "dist"
+			"output": "dist-portable"
 		},
 		"win": {
-			"target": "nsis"
+			"target": "portable"
 		},
 		"nsis": {
 			"oneClick": false

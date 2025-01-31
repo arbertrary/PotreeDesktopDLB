@@ -72,19 +72,19 @@ function createWindow() {
 						)
 					}
 				},
-				{
-					label: "Niua South", click() {
-						mainWindow.webContents.send("loadPC",
-							{
-								key: "niuasouth",
-								name: "Niua South Central Group",
-								path: "./pointclouds/CentralGroup_testalignment_converted/metadata.json",
-								msg: "Loaded Niua South Central Group Point Cloud"
+				// {
+				// 	label: "Niua South", click() {
+				// 		mainWindow.webContents.send("loadPC",
+				// 			{
+				// 				key: "niuasouth",
+				// 				name: "Niua South Central Group",
+				// 				path: "./pointclouds/CentralGroup_testalignment_converted/metadata.json",
+				// 				msg: "Loaded Niua South Central Group Point Cloud"
 
-							}
-						)
-					}
-				},
+				// 			}
+				// 		)
+				// 	}
+				// },
 				{
 					label: "Dechen Cave", click() {
 						mainWindow.webContents.send("loadPC", {
@@ -99,28 +99,28 @@ function createWindow() {
 						)
 					}
 				},
-				{
-					label: "Mars", click() {
-						mainWindow.webContents.send("loadPC", {
-							key: "mars",
-							name: "RealityCapture Mars Imagery Demo",
-							path: "./pointclouds/RC_Mars_tut_converted/metadata.json",
-							msg: "Loaded RealityCapture Mars Demo\n(https://www.capturingreality.com/sample-datasets)"
-						}
-						)
-					}
-				},
-				{
-					label: "Drone Imagery", click() {
-						mainWindow.webContents.send("loadPC", {
-							key: "drone",
-							name: "RealityCapture Drone Imagery Demo",
-							path: "./pointclouds/RC_DroneImagery_tut_converted/metadata.json",
-							msg: "Loaded RealityCapture Drone Imagery Demo\n(https://www.capturingreality.com/sample-datasets)"
-						}
-						)
-					}
-				}
+				// {
+				// 	label: "Mars", click() {
+				// 		mainWindow.webContents.send("loadPC", {
+				// 			key: "mars",
+				// 			name: "RealityCapture Mars Imagery Demo",
+				// 			path: "./pointclouds/RC_Mars_tut_converted/metadata.json",
+				// 			msg: "Loaded RealityCapture Mars Demo\n(https://www.capturingreality.com/sample-datasets)"
+				// 		}
+				// 		)
+				// 	}
+				// },
+				// {
+				// 	label: "Drone Imagery", click() {
+				// 		mainWindow.webContents.send("loadPC", {
+				// 			key: "drone",
+				// 			name: "RealityCapture Drone Imagery Demo",
+				// 			path: "./pointclouds/RC_DroneImagery_tut_converted/metadata.json",
+				// 			msg: "Loaded RealityCapture Drone Imagery Demo\n(https://www.capturingreality.com/sample-datasets)"
+				// 		}
+				// 		)
+				// 	}
+				// }
 			]
 		},
 		{
