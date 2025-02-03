@@ -1,5 +1,6 @@
 ipcRenderer.on("loadPC", function (event, pointCloudInfo) {
     viewer.scene.pointclouds.forEach(pc => pc.visible = false);
+    viewer.setDescription("");
 
     // relative path but not ../pointclouds 
     // because rest-api.js is loaded from index.html 
@@ -10,6 +11,10 @@ ipcRenderer.on("loadPC", function (event, pointCloudInfo) {
 
         if (pointCloudInfo.material) {
             loadMaterial(pointCloudInfo.material, pointcloud);
+        }
+
+        if (pointCloudInfo.description) {
+            viewer.setDescription(pointCloudInfo.description);
         }
 
         if (!scene.pointclouds.some(pointcloud => pointcloud.name === pointCloudInfo.name)) {

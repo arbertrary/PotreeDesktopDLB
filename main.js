@@ -35,7 +35,7 @@ function createWindow() {
 	// 	slashes: true
 	// }));
 	mainWindow.loadFile(path.join(__dirname, 'index.html'));
-	mainWindow.webContents.openDevTools();
+	// mainWindow.webContents.openDevTools();
 
 
 	//let menu = new Menu();
@@ -72,19 +72,19 @@ function createWindow() {
 						)
 					}
 				},
-				{
-					label: "Niua South", click() {
-						mainWindow.webContents.send("loadPC",
-							{
-								key: "niuasouth",
-								name: "Niua South Central Group",
-								path: "./pointclouds/CentralGroup_testalignment_converted/metadata.json",
-								msg: "Loaded Niua South Central Group Point Cloud"
+				// {
+				// 	label: "Niua South", click() {
+				// 		mainWindow.webContents.send("loadPC",
+				// 			{
+				// 				key: "niuasouth",
+				// 				name: "Niua South Central Group",
+				// 				path: "./pointclouds/CentralGroup_testalignment_converted/metadata.json",
+				// 				msg: "Loaded Niua South Central Group Point Cloud"
 
-							}
-						)
-					}
-				},
+				// 			}
+				// 		)
+				// 	}
+				// },
 				{
 					label: "Dechen Cave", click() {
 						mainWindow.webContents.send("loadPC", {
@@ -94,33 +94,59 @@ function createWindow() {
 							msg: "Loaded Dechen Cave Point Cloud",
 							material: {
 								activeAttributeName: "elevation"
-							}
+							},
+							description: `Point cloud of <a href="http://www.dechenhoehle.de/" target="_blank">Dechen-Cave, Iserlohn</a>. Courtesy of <a href="http://lrg.geog.uni-heidelberg.de" target="_blank">Heidelberg University, LiDAR Research Group (LRG)</a><br>
+			<i style="font-size: small">
+			H&auml;mmerle, M., H&ouml;fle, B., Fuchs, J., Schr&ouml;der-Ritzrau, A., Vollweiler, N. & Frank, N. (2014): <a href="http://lrg.geog.uni-heidelberg.de/dechencave/" target="_blank">Comparison of Kinect and Terrestrial LiDAR Capturing Natural Karst Cave 3D Objects</a>. IEEE Geoscience and Remote Sensing Letters, Vol. 11(11), pp 1896-1900, DOI:<a href="http://dx.doi.org/10.1109/LGRS.2014.2313599" target="_blank">10.1109/LGRS.2014.2313599</a>
+			</i>`
 						}
 						)
 					}
 				},
 				{
-					label: "Mars", click() {
+					label: "Santorini", click() {
 						mainWindow.webContents.send("loadPC", {
-							key: "mars",
-							name: "RealityCapture Mars Imagery Demo",
-							path: "./pointclouds/RC_Mars_tut_converted/metadata.json",
-							msg: "Loaded RealityCapture Mars Demo\n(https://www.capturingreality.com/sample-datasets)"
+							key: "santorini",
+							name: "Santorini",
+							path: "http://5.9.65.151/mschuetz/potree/resources/pointclouds/various/santorini/cloud.js",
+							msg: "Loaded Santorini Point Cloud",
+							material: {
+								activeAttributeName: "elevation",
+								ranges: [{
+									name: "elevationRange",
+									value: [13.3, 174]
+								}]
+							},
+							description: `Pyle, David; Parks, Michelle; Mather, Tamsin; Nomikou, Paraskevi (2014): 
+			2012 Santorini LiDAR data 
+			<a href="http://figshare.com/articles/2012_Santorini_LiDAR_data/1138718" target="_blank">
+			taken from figshare</a><br>Datasets from a LiDAR survey of the Greek volcanic islands of Nea Kameni and Palea Kameni, Santorini, Greece. Data were collected during a NERC ARSF flight campaign EU-12-12-137`
 						}
 						)
 					}
 				},
-				{
-					label: "Drone Imagery", click() {
-						mainWindow.webContents.send("loadPC", {
-							key: "drone",
-							name: "RealityCapture Drone Imagery Demo",
-							path: "./pointclouds/RC_DroneImagery_tut_converted/metadata.json",
-							msg: "Loaded RealityCapture Drone Imagery Demo\n(https://www.capturingreality.com/sample-datasets)"
-						}
-						)
-					}
-				}
+				// {
+				// 	label: "Mars", click() {
+				// 		mainWindow.webContents.send("loadPC", {
+				// 			key: "mars",
+				// 			name: "RealityCapture Mars Imagery Demo",
+				// 			path: "./pointclouds/RC_Mars_tut_converted/metadata.json",
+				// 			msg: "Loaded RealityCapture Mars Demo\n(https://www.capturingreality.com/sample-datasets)"
+				// 		}
+				// 		)
+				// 	}
+				// },
+				// {
+				// 	label: "Drone Imagery", click() {
+				// 		mainWindow.webContents.send("loadPC", {
+				// 			key: "drone",
+				// 			name: "RealityCapture Drone Imagery Demo",
+				// 			path: "./pointclouds/RC_DroneImagery_tut_converted/metadata.json",
+				// 			msg: "Loaded RealityCapture Drone Imagery Demo\n(https://www.capturingreality.com/sample-datasets)"
+				// 		}
+				// 		)
+				// 	}
+				// }
 			]
 		},
 		{
