@@ -4,5 +4,4 @@ libs/Cesium
 localtest
 pointclouds/
 screenshots/
-dist/
-dist-portable/
+dist*
