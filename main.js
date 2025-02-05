@@ -15,7 +15,6 @@ const axios = require("axios")
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 let miniConfig = {}; // Store the miniConfig in the main process
-let dlbSubprocess;
 
 function createWindow() {
 	// Create the browser window.
@@ -252,13 +251,18 @@ function createDLBBrowserWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+	const exePath = app.isPackaged
+		? path.join(process.resourcesPath, 'digital-lab-book.exe')
+		: path.join("resources", 'digital-lab-book.exe');
 
-	const exePath = path.join(process.resourcesPath, 'digital-lab-book.exe');
+	const appDirectory = app.isPackaged ? path.dirname(process.env.PORTABLE_EXECUTABLE_FILE) : __dirname;
+	console.log(appDirectory);
+
 	// const subprocess = spawn("cmd.exe", ["/c", "start", "/min", "digital-lab-book.exe"], 
-	const subprocess = spawn(exePath, [],
+	const subprocess = spawn(exePath, ["-o", appDirectory],
 		{
 			detached: true,
-			stdio: 'inherit',
+			stdio: 'inherit'
 		});
 	subprocess.unref(); // Ensures it runs independently
 
