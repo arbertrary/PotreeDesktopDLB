@@ -23,14 +23,21 @@
 		],
 		"icon": "niua_icon.ico",
 		"directories": {
-			"output": "dist-portable"
+			"output": "dist-portable",
+			"buildResources": "resources"
 		},
 		"win": {
 			"target": "portable"
 		},
 		"nsis": {
 			"oneClick": false
-		}
+		},
+		"extraResources": [
+			{
+				"from": "resources/digital-lab-book.exe",
+				"to": "digital-lab-book.exe"
+			}
+		]
 	},
 	"repository": "https://github.com/arbertrary/PotreeDesktopDLB",
 	"keywords": [

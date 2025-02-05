@@ -6,6 +6,8 @@ const MenuItem = electron.MenuItem;
 const remote = electron.remote;
 
 const path = require('path')
+const { spawn } = require('child_process');
+const net = require('net');
 const url = require('url')
 const axios = require("axios")
 
@@ -13,6 +15,7 @@ const axios = require("axios")
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 let miniConfig = {}; // Store the miniConfig in the main process
+let dlbSubprocess;
 
 function createWindow() {
 	// Create the browser window.
@@ -36,7 +39,6 @@ function createWindow() {
 	// }));
 	mainWindow.loadFile(path.join(__dirname, 'index.html'));
 	// mainWindow.webContents.openDevTools();
-
 
 	//let menu = new Menu();
 	//let menuItemWindow = new MenuItem({label: "Window"});
@@ -232,10 +234,53 @@ function createWindow() {
 	})
 }
 
+function createDLBBrowserWindow() {
+	browserWindow = new BrowserWindow({
+		width: 1000,
+		height: 800,
+		webPreferences: {
+			nodeIntegration: false
+		}
+	});
+	browserWindow.loadURL("http://localhost:5000");
+
+	browserWindow.on('closed', () => {
+		browserWindow = null;
+	});
+}
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', () => {
+
+	const exePath = path.join(process.resourcesPath, 'digital-lab-book.exe');
+	// const subprocess = spawn("cmd.exe", ["/c", "start", "/min", "digital-lab-book.exe"], 
+	const subprocess = spawn(exePath, [],
+		{
+			detached: true,
+			stdio: 'inherit',
+		});
+	subprocess.unref(); // Ensures it runs independently
+
+
+
+	createWindow();
+
+	const checkReady = setInterval(() => {
+		const client = net.createConnection({ port: 5000 }, () => {
+			console.log("Subprocess is ready!");
+			clearInterval(checkReady);
+			client.destroy();
+			createDLBBrowserWindow();
+		});
+
+		client.on('error', () => {
+			client.destroy(); // Process not ready yet
+		});
+	}, 500);
+
+
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
