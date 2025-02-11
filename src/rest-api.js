@@ -82,6 +82,9 @@ apiApp.put("/remote/object/call", (req, res) => {
 
         // res.setHeader('Content-Type', 'application/json');
         res.json({ initInfo: { status: "playing", from: "Potree", path: __dirname } });
+    } else if (calledFunc === "loadSingleAction") {
+        viewer.postError("Redoing a single action is not yet supported for Potree!");
+        res.json({ action: "Redoing a single action is not yet supported for Potree!" });
     } else if (calledFunc === "loadFromJson") {
         if (!mini_config.CONNECTED) {
             res.json({ action: "not Connected" });
